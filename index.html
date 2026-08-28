@@ -153,10 +153,10 @@ canvas{width:100%;display:block;touch-action:none}
 .vpinfo{margin-top:10px;font-size:11px;color:#B8AE9C;letter-spacing:.03em}
 .ver{margin-top:18px;letter-spacing:.25em;text-align:center}
 
-/* ── 底部导航：不再使用 env(safe-area-inset-bottom) ── */
+/* ── 底部导航 ── */
 nav{flex:none;display:flex;z-index:20;
   background:var(--paper);border-top:1px solid var(--line);
-  padding-bottom:12px}
+  padding-bottom:20px}
 nav button{flex:1;background:none;border:0;padding:10px 0 8px;color:var(--faint);
   font-family:inherit;font-size:12px;letter-spacing:.2em}
 nav button.active{color:var(--ink)}
@@ -204,7 +204,7 @@ nav svg{width:26px;height:26px;display:block;margin:0 auto 4px;fill:none;stroke:
 .wheel-pair{display:flex}
 .wheel-pair .wheel{flex:1}
 
-#toast{position:fixed;left:50%;bottom:86px;transform:translate(-50%,8px);
+#toast{position:fixed;left:50%;bottom:94px;transform:translate(-50%,8px);
   background:var(--ink);color:var(--paper);font-size:15px;padding:11px 20px;border-radius:22px;
   opacity:0;pointer-events:none;transition:.3s;z-index:60;letter-spacing:.05em;max-width:80%}
 #toast.show{opacity:1;transform:translate(-50%,0)}
@@ -307,9 +307,9 @@ nav svg{width:26px;height:26px;display:block;margin:0 auto 4px;fill:none;stroke:
       <button class="row-btn" id="btnImport"><span>导入备份</span><span class="chev">›</span></button>
       <button class="row-btn danger" id="btnClear"><span>清空全部数据</span><span>›</span></button>
       <div class="about">
-        <p>数据只保存在这台设备的浏览器里，不会上传到任何服务器。iOS 上 Safari 与 Chrome 等浏览器使用同一内核，一个网页若约七天不曾打开，系统可能清掉它的本地数据；但「添加到主屏幕」后、从图标打开使用，则不受此限制。请务必从主屏幕图标进入「烟迹」，并偶尔导出一份备份。</p>
+        <p>数据只保存在这台设备的浏览器里，不会上传到任何服务器。iOS 上 Safari 与主屏 App 的本地数据互相隔离；主屏方式使用则不受「七天清理」限制。请偶尔导出一份备份。</p>
         <p class="vpinfo" id="vpInfo"></p>
-        <p class="ver">烟 迹 · 卷 十二</p>
+        <p class="ver">烟 迹 · 卷 十三</p>
       </div>
     </section>
   </main>
@@ -397,6 +397,23 @@ function resetViewport(){
   try{window.scrollTo(0,0);}catch(_){}
   document.documentElement.scrollTop=0;
   document.body.scrollTop=0;
+}
+
+/* 独立模式视口修复：iOS 偶发把布局视口短报（如 759<812），
+   底部出现无主空带。检测到显著短缺时，把壳体钉在真实屏幕高度上。 */
+function fixShell(){
+  const app=document.getElementById('app');
+  const standalone=(navigator.standalone===true)
+    ||(window.matchMedia&&window.matchMedia('(display-mode: standalone)').matches);
+  if(!standalone||window.innerWidth>window.innerHeight){   // Safari 或横屏：不干预
+    app.style.height='';document.body.style.height='';return;}
+  const full=Math.max(screen.width,screen.height);          // 竖屏真实全高
+  if(full-window.innerHeight>2){
+    document.body.style.height=full+'px';
+    app.style.height=full+'px';
+  }else{
+    app.style.height='';document.body.style.height='';
+  }
 }
 
 /* ───────── 存储（IndexedDB） ───────── */
@@ -1007,7 +1024,7 @@ function renderSettings(){
   const on=prefs.sleep&&prefs.sleep.on;
   $('#sleepValue').textContent=on?fmtT(prefs.sleep.start)+' – '+fmtT(prefs.sleep.end):'未启用';
   $('#setCount').textContent=events.length+' 条';
-  $('#vpInfo').textContent=`视口 ${window.innerWidth}×${window.innerHeight} · 屏幕 ${screen.width}×${screen.height}`;
+  $('#vpInfo').textContent=`视口 ${window.innerWidth}×${window.innerHeight} · 屏幕 ${screen.width}×${screen.height} · 壳 ${document.getElementById('app').offsetHeight}`;
 }
 function buildExport(){return JSON.stringify({app:'smoke-trace',version:2,
   exportedAt:new Date().toISOString(),prefs,events});}
@@ -1115,12 +1132,12 @@ function bindUI(){
   $('#a2hsClose').onclick=()=>{$('#a2hs').style.display='none';localStorage.setItem('st_tip','1');};
   bindProbes();
   document.addEventListener('touchstart',()=>{},{passive:true});
-  window.addEventListener('resize',()=>{resetViewport();
+  window.addEventListener('resize',()=>{fixShell();resetViewport();
     clearTimeout(bindUI._t);bindUI._t=setTimeout(()=>{if(cur==='stats')renderStats();if(cur==='today')renderToday();},200);});
-  window.addEventListener('orientationchange',()=>setTimeout(resetViewport,350));
-  window.addEventListener('pageshow',resetViewport);
+  window.addEventListener('orientationchange',()=>setTimeout(()=>{fixShell();resetViewport();},350));
+  window.addEventListener('pageshow',()=>{fixShell();resetViewport();});
   document.addEventListener('visibilitychange',()=>{if(document.hidden)return;
-    resetViewport();
+    fixShell();resetViewport();
     if(cur==='today')renderToday();if(cur==='history')renderHistory(false);});
   setInterval(()=>{if(cur==='today'&&!document.hidden)renderToday();},30000);
 }
@@ -1129,12 +1146,14 @@ async function init(){
   events=(await DB.getEvents()).sort((a,b)=>a.t-b.t);
   prefs=mergePrefs(await DB.getPref('limit'));
   bindUI();
+  fixShell();
   const isIOS=/iP(hone|od|ad)/.test(navigator.userAgent)
     ||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
   if(isIOS&&!navigator.standalone&&!localStorage.getItem('st_tip'))
     $('#a2hs').style.display='flex';
   showPage('today');
-  setTimeout(resetViewport,400);
+  setTimeout(fixShell,300);
+  setTimeout(()=>{fixShell();resetViewport();},800);
 }
 init();
 </script>
