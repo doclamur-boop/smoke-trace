@@ -150,12 +150,13 @@ canvas{width:100%;display:block;touch-action:none}
 .sec-t{margin:30px 0 2px;font-size:13px;color:var(--faint);letter-spacing:.25em}
 .sec-t span{letter-spacing:.05em}
 .about{margin-top:30px;padding-top:20px;border-top:1px solid var(--line);font-size:14px;color:var(--faint);line-height:1.9}
+.vpinfo{margin-top:10px;font-size:11px;color:#B8AE9C;letter-spacing:.03em}
 .ver{margin-top:18px;letter-spacing:.25em;text-align:center}
 
-/* ── 底部导航：文档流内，壳体的一部分 ── */
+/* ── 底部导航：不再使用 env(safe-area-inset-bottom) ── */
 nav{flex:none;display:flex;z-index:20;
   background:var(--paper);border-top:1px solid var(--line);
-  padding-bottom:env(safe-area-inset-bottom)}
+  padding-bottom:12px}
 nav button{flex:1;background:none;border:0;padding:10px 0 8px;color:var(--faint);
   font-family:inherit;font-size:12px;letter-spacing:.2em}
 nav button.active{color:var(--ink)}
@@ -166,7 +167,7 @@ nav svg{width:26px;height:26px;display:block;margin:0 auto 4px;fill:none;stroke:
 .mask{position:fixed;inset:0;background:rgba(43,38,34,.4);z-index:40;opacity:0;pointer-events:none;transition:opacity .25s}
 .mask.show{opacity:1;pointer-events:auto}
 .sheet{position:fixed;left:0;right:0;bottom:0;max-width:520px;margin:0 auto;background:var(--paper);z-index:41;
-  border-top:1px solid var(--line);border-radius:16px 16px 0 0;padding-bottom:env(safe-area-inset-bottom);
+  border-top:1px solid var(--line);border-radius:16px 16px 0 0;padding-bottom:14px;
   transform:translateY(105%);transition:transform .3s cubic-bezier(.32,.72,.28,1)}
 .sheet.show{transform:none}
 .sheet header{display:flex;align-items:center;justify-content:space-between;padding:18px 20px 8px}
@@ -203,7 +204,7 @@ nav svg{width:26px;height:26px;display:block;margin:0 auto 4px;fill:none;stroke:
 .wheel-pair{display:flex}
 .wheel-pair .wheel{flex:1}
 
-#toast{position:fixed;left:50%;bottom:calc(90px + env(safe-area-inset-bottom));transform:translate(-50%,8px);
+#toast{position:fixed;left:50%;bottom:86px;transform:translate(-50%,8px);
   background:var(--ink);color:var(--paper);font-size:15px;padding:11px 20px;border-radius:22px;
   opacity:0;pointer-events:none;transition:.3s;z-index:60;letter-spacing:.05em;max-width:80%}
 #toast.show{opacity:1;transform:translate(-50%,0)}
@@ -307,7 +308,8 @@ nav svg{width:26px;height:26px;display:block;margin:0 auto 4px;fill:none;stroke:
       <button class="row-btn danger" id="btnClear"><span>清空全部数据</span><span>›</span></button>
       <div class="about">
         <p>数据只保存在这台设备的浏览器里，不会上传到任何服务器。iOS 上 Safari 与 Chrome 等浏览器使用同一内核，一个网页若约七天不曾打开，系统可能清掉它的本地数据；但「添加到主屏幕」后、从图标打开使用，则不受此限制。请务必从主屏幕图标进入「烟迹」，并偶尔导出一份备份。</p>
-        <p class="ver">烟 迹 · 卷 十一</p>
+        <p class="vpinfo" id="vpInfo"></p>
+        <p class="ver">烟 迹 · 卷 十二</p>
       </div>
     </section>
   </main>
@@ -391,7 +393,6 @@ function fmtDur(ms){const m=Math.floor(ms/6e4);if(m<1)return '刚刚';
   if(h<48){const mm=m%60;return h+' 小时'+(mm?' '+mm+' 分':'');}
   const d=Math.floor(h/24),hh=h%24;return d+' 天'+(hh?' '+hh+' 小时':'');}
 
-/* 清掉任何残留的窗口滚动偏移（壳体尺寸由 CSS 盒子推导，无需测量） */
 function resetViewport(){
   try{window.scrollTo(0,0);}catch(_){}
   document.documentElement.scrollTop=0;
@@ -416,7 +417,7 @@ const DB={db:null,
 };
 
 /* ───────── 状态 ───────── */
-let events=[];   // 按 t 升序
+let events=[];
 let prefs=mergePrefs(null);
 let cur='today', statsRange=30, histDays=14;
 
@@ -436,7 +437,6 @@ function spanDays(rangeStart){const f=firstDayStart();if(f===null)return 0;
   const from=(rangeStart==null)?f:Math.max(f,rangeStart);
   return Math.round((startOfDay(Date.now())-from)/DAY)+1;}
 
-/* 睡眠感知的间隔：扣除与睡眠时段的重叠部分 */
 function sleepDur(){const s=prefs.sleep;if(!s||!s.on)return 0;
   return ((s.end-s.start)%1440+1440)%1440;}
 function effGap(a,b){
@@ -464,7 +464,7 @@ function peakHours(bins){let max=0;bins.forEach(v=>{if(v>max)max=v;});
   return{max,idx:bins.reduce((a,v,i)=>{if(v===max)a.push(i);return a;},[])};}
 const fmtHours=list=>list.map(i=>String(i)).join('、')+' 时';
 
-/* ───────── 点燃特效：炭火余烬，严格裁剪在圆章内 ───────── */
+/* ───────── 点燃特效 ───────── */
 const FX=(()=>{
   const cv=document.getElementById('fx');
   if(!cv)return{fire(){}};
@@ -565,7 +565,7 @@ function heatColor(t){t=Math.sqrt(Math.min(1,t));
   const r=Math.round(0xE0+(0x6E-0xE0)*t),g=Math.round(0xCE+(0x48-0xCE)*t),b=Math.round(0xAF+(0x1C-0xAF)*t);
   return `rgb(${r},${g},${b})`;}
 
-/* ───────── 图表一：24 小时分布 ───────── */
+/* ───────── 图表一 ───────── */
 let hourlyHi=-1,hourlyGeom=null;
 function _drawHourly(){
   const bins=hourlyBins(statsRange),P=peakHours(bins);
@@ -590,7 +590,7 @@ function _drawHourly(){
   if(bins.every(v=>!v)){c.fillStyle=C.faint;c.font='13px '+CF;c.fillText('暂无记录',w/2,padT+ih/2);}
 }
 
-/* ───────── 图表二：星期 × 时辰热力 ───────── */
+/* ───────── 图表二 ───────── */
 let hmHi=null,hmGeom=null,hmGrid=null;
 function _drawHeatmap(){
   const cv=$('#cvHeat'),{c,w,h}=ctx2d(cv,216);
@@ -613,7 +613,7 @@ function _drawHeatmap(){
     c.strokeRect(padL+hmHi.c*cw+.5,padT+hmHi.r*ch+.5,cw-1,ch-1);}
 }
 
-/* ───────── 图表三：走势 ───────── */
+/* ───────── 图表三 ───────── */
 let trendData=[],trendGeom=null,trendHi=-1;
 function buildTrend(){
   if(!events.length){trendData=[];return;}
@@ -689,7 +689,7 @@ function _drawTrend(){
     c.fillText(`${d.getMonth()+1}月${d.getDate()}日 · ${p.c} 支`,Math.min(w-56,Math.max(56,X(trendHi))),15);}
 }
 
-/* ───────── 图表四：工作日与周末 ───────── */
+/* ───────── 图表四 ───────── */
 function drawWeek(){
   const cv=$('#cvWeek'),{c,w,h}=ctx2d(cv,188);
   const now=startOfDay(Date.now()),f=firstDayStart();
@@ -745,7 +745,7 @@ function bindProbes(){
     onEnd:()=>{trendHi=-1;_drawTrend();}});
 }
 
-/* ───────── 滚轮选择器 ───────── */
+/* ───────── 滚轮 ───────── */
 class Wheel{
   constructor(box,labels,specialFirst=true){
     this.box=box;this.h=50;this.n=labels.length;this.maxOff=(this.n-1)*this.h;
@@ -1007,6 +1007,7 @@ function renderSettings(){
   const on=prefs.sleep&&prefs.sleep.on;
   $('#sleepValue').textContent=on?fmtT(prefs.sleep.start)+' – '+fmtT(prefs.sleep.end):'未启用';
   $('#setCount').textContent=events.length+' 条';
+  $('#vpInfo').textContent=`视口 ${window.innerWidth}×${window.innerHeight} · 屏幕 ${screen.width}×${screen.height}`;
 }
 function buildExport(){return JSON.stringify({app:'smoke-trace',version:2,
   exportedAt:new Date().toISOString(),prefs,events});}
@@ -1115,7 +1116,7 @@ function bindUI(){
   bindProbes();
   document.addEventListener('touchstart',()=>{},{passive:true});
   window.addEventListener('resize',()=>{resetViewport();
-    clearTimeout(resize._t);resize._t=setTimeout(()=>{if(cur==='stats')renderStats();if(cur==='today')renderToday();},200);});
+    clearTimeout(bindUI._t);bindUI._t=setTimeout(()=>{if(cur==='stats')renderStats();if(cur==='today')renderToday();},200);});
   window.addEventListener('orientationchange',()=>setTimeout(resetViewport,350));
   window.addEventListener('pageshow',resetViewport);
   document.addEventListener('visibilitychange',()=>{if(document.hidden)return;
