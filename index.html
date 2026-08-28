@@ -1,0 +1,897 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="烟迹">
+<meta name="theme-color" content="#F5F0E6">
+<title>烟迹</title>
+<style>
+:root{
+  --paper:#F5F0E6; --paper2:#EDE6D6; --ink:#2B2622; --ink2:#57504A;
+  --faint:#7A7063; --line:#DCD3C2; --amber:#A67238; --amberD:#7A4E1F;
+  --alert:#A8402F; --olive:#5E7355;
+  --serif:"Songti SC","Noto Serif SC",STSong,Georgia,serif;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;
+  -webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+input{-webkit-user-select:auto;user-select:auto}
+html{height:100%}
+body{min-height:100%;background:var(--paper);color:var(--ink);font-family:var(--serif);touch-action:manipulation}
+#app{max-width:480px;margin:0 auto}
+main{padding:calc(env(safe-area-inset-top) + 14px) 20px calc(96px + env(safe-area-inset-bottom))}
+.page{display:none}
+.page.active{display:block;animation:pageIn .28s ease}
+@keyframes pageIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+/* ── 添加到主屏幕提示 ── */
+.a2hs{display:none;align-items:flex-start;gap:10px;background:var(--amberD);color:#F5EFE2;
+  font-size:12px;line-height:1.6;padding:10px 14px}
+.a2hs button{background:none;border:0;color:inherit;font-size:16px;font-family:inherit;padding:0 2px;margin-left:auto}
+
+/* ── 页头 ── */
+.pg-head{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:4px}
+.brand{font-size:13px;letter-spacing:.5em;color:var(--ink2);font-weight:700}
+
+/* ── 今日页 ── */
+.today-hero{text-align:center;margin-top:26px}
+.date-cn{font-size:15px;color:var(--ink2);letter-spacing:.15em;margin-bottom:16px}
+.big{font-size:80px;font-weight:700;line-height:1}
+.big .unit{font-size:16px;color:var(--faint);margin-left:8px;font-weight:400}
+#todayNum{display:inline-block}
+#todayNum.pop{animation:pop .35s ease}
+@keyframes pop{0%{transform:scale(1)}35%{transform:scale(1.14)}100%{transform:scale(1)}}
+#todayNum.over{color:var(--alert)}
+.sub{margin-top:10px;font-size:12px;color:var(--faint);letter-spacing:.3em}
+.sub.warn{color:var(--alert)}
+#limitWrap{margin-top:14px}
+#limitBar{height:2px;background:var(--line);width:180px;margin:0 auto;position:relative}
+#limitBar i{position:absolute;left:0;top:0;bottom:0;background:var(--amber);transition:width .3s;width:0}
+#limitBar.over i{background:var(--alert)}
+
+.stamp-wrap{display:flex;flex-direction:column;align-items:center;margin-top:38px;position:relative}
+.stamp{width:150px;height:150px;border-radius:50%;background:var(--ink);border:0;position:relative;
+  display:flex;align-items:center;justify-content:center;cursor:pointer;transition:transform .15s ease}
+.stamp:active{transform:scale(.95)}
+.stamp::after{content:"";position:absolute;inset:-10px;border:1px solid rgba(43,38,34,.3);border-radius:50%;pointer-events:none}
+.stamp svg{width:62px;height:98px;overflow:visible}
+.smoke path{fill:none;stroke:var(--paper);stroke-width:2;stroke-linecap:round}
+.smoke .base{opacity:.5}
+.smoke .rise{stroke-dasharray:90;stroke-dashoffset:90;opacity:0}
+.smoke.go .rise{animation:rise 1s ease-out forwards}
+.smoke.go .r2{animation-delay:.13s}
+@keyframes rise{0%{stroke-dashoffset:90;opacity:.85;transform:translateY(6px)}
+  70%{opacity:.3}100%{stroke-dashoffset:0;opacity:0;transform:translateY(-12px)}}
+.undo{position:absolute;top:calc(100% + 14px);display:flex;align-items:center;gap:8px;white-space:nowrap;
+  background:var(--paper2);border:1px solid var(--line);border-radius:20px;padding:7px 8px 7px 16px;
+  font-size:12px;color:var(--ink2);opacity:0;transform:translateY(6px);transition:.3s;pointer-events:none}
+.undo.show{opacity:1;transform:none;pointer-events:auto}
+.undo button{background:none;border:0;color:var(--amberD);font-weight:700;font-family:inherit;font-size:13px;padding:2px 8px}
+
+.stats3{display:grid;grid-template-columns:1fr 1fr 1fr;border-top:1px solid var(--line);
+  border-bottom:1px solid var(--line);margin-top:46px}
+.stats3>div{padding:14px 4px;text-align:center}
+.stats3>div+div{border-left:1px solid var(--line)}
+.stats3 b{display:block;font-size:15px;font-weight:700;margin-bottom:5px}
+.stats3 b.live{color:var(--amberD)}
+.stats3 span{font-size:11px;color:var(--faint);letter-spacing:.08em}
+.peak{margin-top:18px;text-align:center;font-size:13px;color:var(--ink2)}
+.peak::before{content:"·";color:var(--amber);margin-right:8px}
+.mini{margin-top:24px}
+.mini-t{font-size:11px;color:var(--faint);letter-spacing:.25em;margin-bottom:9px}
+#miniBars{display:flex;align-items:flex-end;gap:3px;height:30px}
+#miniBars span{flex:1;background:var(--amber);border-radius:1px;opacity:.85}
+#miniBars span.z{background:var(--line);height:2px;opacity:1}
+
+/* ── 行按钮（设置/入口）── */
+.row-btn{display:flex;justify-content:space-between;align-items:center;width:100%;background:none;border:0;
+  border-bottom:1px solid var(--line);padding:15px 2px;font-family:inherit;font-size:15px;color:var(--ink);text-align:left}
+.row-btn>span:last-child{color:var(--faint);font-size:13px}
+.row-btn:active{background:rgba(43,38,34,.04)}
+.row-btn.danger{color:var(--alert)}
+.chev{font-size:16px}
+
+/* ── 分析页 ── */
+.seg{display:flex;border:1px solid var(--line);border-radius:6px;overflow:hidden}
+.seg button{flex:1;background:none;border:0;border-left:1px solid var(--line);padding:7px 0;
+  font-family:inherit;font-size:12px;color:var(--faint)}
+.seg button:first-child{border-left:0}
+.seg button.on{background:var(--ink);color:var(--paper)}
+.ov{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--line);border:1px solid var(--line);margin-top:16px}
+.ov>div{background:var(--paper);padding:13px 16px}
+.ov b{display:block;font-size:22px;font-weight:700}
+.ov b#ovTop,.ov b#ovCmp{font-size:15px;padding-top:5px}
+.ov span{font-size:11px;color:var(--faint);letter-spacing:.1em}
+#ovCmp.up{color:var(--alert)}
+#ovCmp.down{color:var(--olive)}
+.sec{margin-top:32px}
+.sec-h{display:flex;align-items:baseline;gap:10px;border-bottom:1px solid var(--ink);padding-bottom:8px;margin-bottom:12px}
+.sec-h .no{font-size:12px;color:var(--amber)}
+.sec-h h3{font-size:15px;font-weight:700;letter-spacing:.05em}
+.sec-h .tail{margin-left:auto;font-size:10px;color:var(--faint)}
+.note{margin-top:10px;font-size:12px;color:var(--faint);line-height:1.7}
+.read{font-size:12px;color:var(--ink2);min-height:18px;margin-bottom:6px}
+canvas{width:100%;display:block;touch-action:none}
+
+/* ── 历史页 ── */
+.ghost-btn{background:none;border:1px solid var(--line);border-radius:6px;padding:8px 16px;
+  font-family:inherit;font-size:13px;color:var(--ink2)}
+.ghost-btn.wide{display:block;width:100%;margin-top:26px;padding:12px}
+.hist-day{margin-top:22px}
+.hist-day header{display:flex;align-items:baseline;gap:8px;padding-bottom:6px;border-bottom:1px solid var(--line)}
+.hist-day header .d{font-weight:700;font-size:14px}
+.hist-day .wd{font-size:12px;color:var(--faint)}
+.hist-day .cnt{margin-left:auto;font-size:12px;color:var(--amber)}
+.hist-row{display:flex;align-items:center;padding:9px 2px;border-bottom:1px dashed var(--line)}
+.hist-row .t{font-size:15px;letter-spacing:.06em}
+.hist-row .del{margin-left:auto;background:none;border:0;color:var(--faint);font-size:17px;
+  padding:2px 10px;font-family:inherit}
+.hist-row .del:active{color:var(--alert)}
+.empty{margin-top:44px;text-align:center;color:var(--faint);font-size:13px}
+
+/* ── 设置页 ── */
+.sec-t{margin:28px 0 2px;font-size:11px;color:var(--faint);letter-spacing:.25em}
+.sec-t span{letter-spacing:.05em}
+.about{margin-top:28px;padding-top:18px;border-top:1px solid var(--line);font-size:12px;color:var(--faint);line-height:1.9}
+.ver{margin-top:16px;letter-spacing:.25em;text-align:center}
+
+/* ── 底部导航 ── */
+nav{position:fixed;bottom:0;left:0;right:0;max-width:480px;margin:0 auto;display:flex;z-index:20;
+  background:rgba(245,240,230,.92);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);
+  border-top:1px solid var(--line);border-left:1px solid var(--line);border-right:1px solid var(--line);
+  padding-bottom:env(safe-area-inset-bottom)}
+nav button{flex:1;background:none;border:0;padding:9px 0 7px;color:var(--faint);
+  font-family:inherit;font-size:10px;letter-spacing:.2em}
+nav button.active{color:var(--ink)}
+nav svg{width:22px;height:22px;display:block;margin:0 auto 4px;fill:none;stroke:currentColor;
+  stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
+
+/* ── 弹层 ── */
+.mask{position:fixed;inset:0;background:rgba(43,38,34,.4);z-index:40;opacity:0;pointer-events:none;transition:opacity .25s}
+.mask.show{opacity:1;pointer-events:auto}
+.sheet{position:fixed;left:0;right:0;bottom:0;max-width:480px;margin:0 auto;background:var(--paper);z-index:41;
+  border-top:1px solid var(--line);border-radius:14px 14px 0 0;padding-bottom:env(safe-area-inset-bottom);
+  transform:translateY(105%);transition:transform .3s cubic-bezier(.32,.72,.28,1)}
+.sheet.show{transform:none}
+.sheet header{display:flex;align-items:center;justify-content:space-between;padding:16px 18px 6px}
+.sheet h4{font-size:16px;font-weight:700;letter-spacing:.05em}
+.sheet .x{background:none;border:0;color:var(--faint);font-size:14px;font-family:inherit}
+.sheet .primary{display:block;width:calc(100% - 36px);margin:14px auto 18px;background:var(--ink);color:var(--paper);
+  border:0;border-radius:8px;padding:13px;font-family:inherit;font-size:15px;letter-spacing:.15em}
+.sheet .primary.danger{background:var(--alert)}
+.sheet .ghost{display:block;width:calc(100% - 36px);margin:0 auto 14px;background:none;color:var(--ink2);
+  border:1px solid var(--line);border-radius:8px;padding:12px;font-family:inherit;font-size:14px;letter-spacing:.1em}
+.sheet input[type=datetime-local]{display:block;width:calc(100% - 36px);margin:14px auto 0;padding:12px;
+  border:1px solid var(--line);border-radius:8px;background:#fff;color:var(--ink);font-family:inherit;font-size:15px}
+.cf-body{padding:2px 18px 4px;font-size:13px;color:var(--ink2);line-height:1.7}
+.cf-btns{display:flex;gap:10px;padding:16px 18px 20px}
+.cf-btns button{flex:1;margin:0}
+.cf-btns .primary{margin-bottom:0}
+
+/* ── 滚轮 ── */
+.wheel{position:relative;height:252px;overflow:hidden;touch-action:none;margin:4px 0 2px}
+.wheel-items{position:absolute;left:0;right:0;top:0;will-change:transform}
+.wheel-item{position:absolute;left:0;right:0;height:44px;display:flex;align-items:center;justify-content:center;
+  font-size:21px;color:var(--ink);will-change:transform,opacity}
+.wheel-item.special{color:var(--faint);font-size:15px;letter-spacing:.3em}
+.wheel-hl{position:absolute;left:22px;right:22px;top:50%;height:44px;transform:translateY(-50%);
+  border-top:1px solid var(--line);border-bottom:1px solid var(--line);pointer-events:none;z-index:3}
+.wheel::before,.wheel::after{content:"";position:absolute;left:0;right:0;height:86px;z-index:2;pointer-events:none}
+.wheel::before{top:0;background:linear-gradient(to bottom,var(--paper) 10%,rgba(245,240,230,0))}
+.wheel::after{bottom:0;background:linear-gradient(to top,var(--paper) 10%,rgba(245,240,230,0))}
+
+#toast{position:fixed;left:50%;bottom:calc(96px + env(safe-area-inset-bottom));transform:translate(-50%,8px);
+  background:var(--ink);color:var(--paper);font-size:13px;padding:9px 18px;border-radius:20px;
+  opacity:0;pointer-events:none;transition:.3s;z-index:60;letter-spacing:.05em;max-width:80%}
+#toast.show{opacity:1;transform:translate(-50%,0)}
+</style>
+</head>
+<body>
+<div id="app">
+
+  <div class="a2hs" id="a2hs">
+    <span>提示：点 Safari 底部「分享」→「添加到主屏幕」，即可像 App 一样全屏使用，数据存储也更稳定。</span>
+    <button id="a2hsClose">✕</button>
+  </div>
+
+  <main>
+    <!-- ═══ 今日 ═══ -->
+    <section id="page-today" class="page active">
+      <header class="pg-head"><p class="brand">烟 迹</p></header>
+      <div class="today-hero">
+        <p class="date-cn" id="todayDate"></p>
+        <div class="big"><span id="todayNum">0</span><span class="unit">支</span></div>
+        <p class="sub" id="todaySub">今日</p>
+        <div id="limitWrap"><div id="limitBar"><i></i></div></div>
+      </div>
+      <div class="stamp-wrap">
+        <button class="stamp" id="stampBtn" aria-label="记录一支烟">
+          <svg class="smoke" id="stampSmoke" viewBox="0 0 60 96">
+            <path class="base" d="M30 84 C 23 68 37 58 30 42 C 24 29 35 22 30 8"/>
+            <path class="rise r1" d="M30 84 C 23 68 37 58 30 42 C 24 29 35 22 30 8"/>
+            <path class="rise r2" d="M37 90 C 31 76 43 66 37 50"/>
+          </svg>
+        </button>
+        <div class="undo" id="undoPill"><span id="undoTime"></span><button id="undoBtn">撤销</button></div>
+      </div>
+      <div class="stats3">
+        <div><b id="statLast">—</b><span>距上一支</span></div>
+        <div><b id="statAvg">—</b><span>日均 · 近30日</span></div>
+        <div><b id="statGap">—</b><span>最长间隔<span id="gapLive"></span></span></div>
+      </div>
+      <p class="peak" id="peakLine"></p>
+      <div class="mini">
+        <p class="mini-t">今 日 时 辰</p>
+        <div id="miniBars"></div>
+      </div>
+      <button class="row-btn" id="limitOpenToday" style="margin-top:24px">
+        <span>每日上限</span><span id="limitValueToday">未设置</span>
+      </button>
+    </section>
+
+    <!-- ═══ 分析 ═══ -->
+    <section id="page-stats" class="page">
+      <header class="pg-head"><p class="brand">分 析</p>
+        <div class="seg" id="rangeSeg">
+          <button data-r="7">7日</button><button data-r="30" class="on">30日</button>
+          <button data-r="90">90日</button><button data-r="all">全部</button>
+        </div>
+      </header>
+      <div class="ov">
+        <div><b id="ovTotal">0</b><span id="ovTotalL">近 30 日总计</span></div>
+        <div><b id="ovAvg">0.0</b><span>日均</span></div>
+        <div><b id="ovTop">—</b><span>单日最多</span></div>
+        <div><b id="ovCmp">—</b><span>较前一周期</span></div>
+      </div>
+      <section class="sec">
+        <header class="sec-h"><span class="no">一</span><h3>二十四小时分布</h3></header>
+        <canvas id="cvHourly"></canvas>
+        <p class="note" id="noteHourly"></p>
+      </section>
+      <section class="sec">
+        <header class="sec-h"><span class="no">二</span><h3>星期与时辰</h3><span class="tail">颜色越深越密集</span></header>
+        <p class="read" id="heatRead"></p>
+        <canvas id="cvHeat"></canvas>
+        <p class="note" id="noteHeat"></p>
+      </section>
+      <section class="sec">
+        <header class="sec-h"><span class="no">三</span><h3>走势</h3><span class="tail">墨线为七日均线</span></header>
+        <canvas id="cvTrend"></canvas>
+        <p class="note" id="noteTrend"></p>
+      </section>
+      <section class="sec">
+        <header class="sec-h"><span class="no">四</span><h3>工作日与周末</h3><span class="tail">墨柱为周末</span></header>
+        <canvas id="cvWeek"></canvas>
+        <p class="note" id="weekNote"></p>
+      </section>
+    </section>
+
+    <!-- ═══ 历史 ═══ -->
+    <section id="page-history" class="page">
+      <header class="pg-head"><p class="brand">历 史</p>
+        <button class="ghost-btn" id="btnBackfill">＋ 补记</button>
+      </header>
+      <div id="histList"></div>
+      <button class="ghost-btn wide" id="histOlder">载入更早</button>
+    </section>
+
+    <!-- ═══ 设置 ═══ -->
+    <section id="page-settings" class="page">
+      <header class="pg-head"><p class="brand">设 置</p></header>
+      <button class="row-btn" id="limitOpen"><span>每日上限</span><span id="limitValue">未设置</span></button>
+      <p class="sec-t">数 据 <span id="setCount"></span></p>
+      <button class="row-btn" id="btnExport"><span>导出备份</span><span class="chev">›</span></button>
+      <button class="row-btn" id="btnImport"><span>导入备份</span><span class="chev">›</span></button>
+      <button class="row-btn danger" id="btnClear"><span>清空全部数据</span><span>›</span></button>
+      <div class="about">
+        <p>数据只保存在这台设备的浏览器里，不会上传到任何服务器。请从主屏幕图标打开「烟迹」——若长期只在 Safari 里使用，闲置约七天后系统可能清掉数据。建议偶尔导出一份备份。</p>
+        <p class="ver">烟 迹 · 卷 一</p>
+      </div>
+    </section>
+  </main>
+
+  <!-- ═══ 底部导航 ═══ -->
+  <nav id="tabs">
+    <button data-page="today" class="active">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.2"/><circle cx="12" cy="12" r="1.7" fill="currentColor" stroke="none"/></svg>今日</button>
+    <button data-page="stats">
+      <svg viewBox="0 0 24 24"><path d="M5 20v-8M12 20V5M19 20v-5"/></svg>分析</button>
+    <button data-page="history">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.2"/><path d="M12 7.5V12l3 2"/></svg>历史</button>
+    <button data-page="settings">
+      <svg viewBox="0 0 24 24"><path d="M4 8h16M4 16h16"/><circle cx="9.5" cy="8" r="2.2" fill="#F5F0E6"/><circle cx="14.5" cy="16" r="2.2" fill="#F5F0E6"/></svg>设置</button>
+  </nav>
+</div>
+
+<!-- ═══ 弹层 ═══ -->
+<div class="mask" id="mask"></div>
+
+<div class="sheet" id="sheetLimit">
+  <header><h4>每日上限</h4><button class="x" data-close>取消</button></header>
+  <div class="wheel" id="wheelBox"><div class="wheel-hl"></div></div>
+  <button class="primary" id="limitSave">保 存</button>
+</div>
+
+<div class="sheet" id="sheetBackfill">
+  <header><h4>补记一支</h4><button class="x" data-close>取消</button></header>
+  <input type="datetime-local" id="backfillInput">
+  <button class="primary" id="backfillSave">保 存</button>
+</div>
+
+<div class="sheet" id="sheetExport">
+  <header><h4>导出备份</h4><button class="x" data-close>关闭</button></header>
+  <button class="primary" id="expDownload">下载 JSON 文件</button>
+  <button class="ghost" id="expCopy">复制到剪贴板</button>
+</div>
+
+<div class="sheet" id="sheetConfirm">
+  <header><h4 id="cfTitle"></h4></header>
+  <p class="cf-body" id="cfBody"></p>
+  <div class="cf-btns">
+    <button class="ghost" id="cfCancel">取消</button>
+    <button class="primary" id="cfOk"></button>
+  </div>
+</div>
+
+<div id="toast"></div>
+<input type="file" id="fileImport" accept=".json,application/json" hidden>
+
+<script>
+'use strict';
+/* ───────── 工具 ───────── */
+const $=s=>document.querySelector(s), $$=s=>document.querySelectorAll(s);
+const DAY=864e5, pad=n=>String(n).padStart(2,'0');
+const fmtHM=ts=>{const d=new Date(ts);return pad(d.getHours())+':'+pad(d.getMinutes());};
+const fmtMD=ts=>{const d=new Date(ts);return (d.getMonth()+1)+'月'+d.getDate()+'日';};
+const startOfDay=ts=>{const d=new Date(ts);d.setHours(0,0,0,0);return d.getTime();};
+const uid=()=>crypto.randomUUID?crypto.randomUUID():Date.now().toString(36)+Math.random().toString(36).slice(2);
+const CN='一二三四五六七八九十';
+function cnNum(n){if(n<=10)return CN[n-1];if(n<20)return '十'+CN[n-11];
+  const t=Math.floor(n/10),o=n%10;return CN[t-1]+'十'+(o?CN[o-1]:'');}
+const cnDate=d=>cnNum(d.getMonth()+1)+'月'+cnNum(d.getDate())+'日';
+const cnWeek=d=>'星期'+'日一二三四五六'[d.getDay()];
+function fmtDur(ms){const m=Math.floor(ms/6e4);if(m<1)return '刚刚';
+  if(m<60)return m+' 分钟';const h=Math.floor(m/60);
+  if(h<48){const mm=m%60;return h+' 小时'+(mm?' '+mm+' 分':'');}
+  const d=Math.floor(h/24),hh=h%24;return d+' 天'+(hh?' '+hh+' 小时':'');}
+
+/* ───────── 存储（IndexedDB） ───────── */
+const DB={db:null,
+  open(){return new Promise((res,rej)=>{const r=indexedDB.open('smoke-trace',1);
+    r.onupgradeneeded=e=>{const d=e.target.result;
+      if(!d.objectStoreNames.contains('events')){const s=d.createObjectStore('events',{keyPath:'id'});s.createIndex('t','t');}
+      if(!d.objectStoreNames.contains('prefs'))d.createObjectStore('prefs');};
+    r.onsuccess=()=>{DB.db=r.result;res();};r.onerror=()=>rej(r.error);});},
+  req(r){return new Promise((res,rej)=>{r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error);});},
+  st(n,m){return DB.db.transaction(n,m).objectStore(n);},
+  getEvents(){return DB.req(DB.st('events','readonly').getAll());},
+  putEvent(e){return DB.req(DB.st('events','readwrite').put(e));},
+  delEvent(id){return DB.req(DB.st('events','readwrite').delete(id));},
+  clearEvents(){return DB.req(DB.st('events','readwrite').clear());},
+  getPref(k){return DB.req(DB.st('prefs','readonly').get(k));},
+  setPref(k,v){return DB.req(DB.st('prefs','readwrite').put(v,k));}
+};
+
+/* ───────── 状态 ───────── */
+let events=[];                      // 按 t 升序
+let prefs={dailyLimit:null,limitTouched:false};
+let cur='today', statsRange=30, histDays=14;
+
+/* ───────── 数据操作 ───────── */
+async function addEvent(ts){const ev={id:uid(),t:ts};events.push(ev);events.sort((a,b)=>a.t-b.t);await DB.putEvent(ev);return ev;}
+
+function longestGap(now){let max=0,live=false;
+  for(let i=1;i<events.length;i++){const g=events[i].t-events[i-1].t;if(g>max)max=g;}
+  if(events.length){const g=now-events[events.length-1].t;if(g>max){max=g;live=true;}}
+  return {ms:max,live};}
+
+function hourlyBins(days){const b=new Array(24).fill(0);
+  const s=days===Infinity?0:startOfDay(Date.now())-(days-1)*DAY;
+  for(const e of events)if(e.t>=s)b[new Date(e.t).getHours()]++;return b;}
+
+/* ───────── 画布基础 ───────── */
+const C={ink:'#2B2622',ink2:'#57504A',faint:'#7A7063',line:'#DCD3C2',amber:'#A67238'};
+function ctx2d(cv,h){const w=cv.clientWidth||cv.parentElement.clientWidth;
+  const d=Math.min(3,window.devicePixelRatio||1);
+  cv.width=Math.round(w*d);cv.height=Math.round(h*d);cv.style.height=h+'px';
+  const c=cv.getContext('2d');c.setTransform(d,0,0,d,0,0);c.clearRect(0,0,w,h);return {c,w,h};}
+function rr(c,x,y,w,h,r){r=Math.min(r,w/2,h/2);c.beginPath();c.moveTo(x+r,y);
+  c.arcTo(x+w,y,x+w,y+h,r);c.arcTo(x+w,y+h,x,y+h,r);c.arcTo(x,y+h,x,y,r);c.arcTo(x,y,x+w,y,r);c.closePath();}
+function heatColor(t){t=Math.sqrt(Math.min(1,t));
+  const r=Math.round(0xE0+(0x6E-0xE0)*t),g=Math.round(0xCE+(0x48-0xCE)*t),b=Math.round(0xAF+(0x1C-0xAF)*t);
+  return `rgb(${r},${g},${b})`;}
+
+/* ───────── 图表一：24 小时分布 ───────── */
+let hourlyHi=-1,hourlyGeom=null;
+function _drawHourly(){
+  const bins=hourlyBins(statsRange);
+  const cv=$('#cvHourly'),{c,w,h}=ctx2d(cv,190);
+  const padL=6,padR=6,padT=26,padB=22,iw=w-padL-padR,ih=h-padT-padB;
+  const bw=iw/24,barW=Math.min(14,bw*.52),maxV=Math.max(...bins,1);
+  let pk=0;bins.forEach((v,i)=>{if(v>bins[pk])pk=i;});
+  hourlyGeom={padL,bw};
+  c.strokeStyle=C.line;c.lineWidth=1;
+  c.beginPath();c.moveTo(padL,padT+ih+.5);c.lineTo(w-padR,padT+ih+.5);c.stroke();
+  bins.forEach((v,i)=>{if(!v)return;const bh=v/maxV*ih,x=padL+i*bw+(bw-barW)/2;
+    c.fillStyle=(i===pk||i===hourlyHi)?C.ink:C.amber;
+    rr(c,x,padT+ih-bh,barW,Math.max(2,bh),2);c.fill();});
+  c.font='10px Georgia,serif';c.fillStyle=C.faint;c.textAlign='center';
+  [0,6,12,18].forEach(t=>c.fillText(t+'时',padL+t*bw+bw/2,h-8));
+  c.font='11px Georgia,serif';
+  if(hourlyHi>=0&&bins[hourlyHi]>0){c.fillStyle=C.ink;
+    c.fillText(`${hourlyHi} 时 · ${bins[hourlyHi]} 支`,Math.min(w-46,Math.max(46,padL+hourlyHi*bw+bw/2)),14);}
+  else if(bins[pk]>0){c.fillStyle=C.ink2;
+    c.fillText(`峰值 ${pk} 时 · ${bins[pk]} 支`,Math.min(w-46,Math.max(46,padL+pk*bw+bw/2)),14);}
+  if(bins.every(v=>!v)){c.fillStyle=C.faint;c.font='12px Georgia,serif';c.fillText('暂无记录',w/2,padT+ih/2);}
+}
+
+/* ───────── 图表二：星期 × 时辰热力 ───────── */
+let hmHi=null,hmGeom=null,hmGrid=null;
+function _drawHeatmap(){
+  const cv=$('#cvHeat'),{c,w,h}=ctx2d(cv,196);
+  const padL=24,padT=2,padB=18,cw=(w-padL-1)/24,ch=(h-padT-padB)/7;
+  hmGeom={padL,padT,cw,ch};
+  const s=statsRange===Infinity?0:startOfDay(Date.now())-(statsRange-1)*DAY;
+  const grid=Array.from({length:7},()=>new Array(24).fill(0));
+  for(const e of events){if(e.t<s)continue;const d=new Date(e.t);grid[(d.getDay()+6)%7][d.getHours()]++;}
+  hmGrid=grid;
+  let max=0;grid.forEach(r=>r.forEach(v=>{if(v>max)max=v;}));
+  c.font='10px Georgia,serif';c.fillStyle=C.faint;
+  c.textAlign='right';
+  '一二三四五六日'.split('').forEach((t,i)=>c.fillText(t,padL-7,padT+i*ch+ch/2+3.5));
+  c.textAlign='center';
+  [0,6,12,18].forEach(t=>c.fillText(t+'时',padL+t*cw+cw/2,h-5));
+  for(let r=0;r<7;r++)for(let col=0;col<24;col++){const v=grid[r][col];if(!v)continue;
+    c.fillStyle=heatColor(v/Math.max(1,max));
+    rr(c,padL+col*cw+1,padT+r*ch+1,cw-2,ch-2,2.5);c.fill();}
+  if(hmHi){c.strokeStyle=C.ink;c.lineWidth=1.2;
+    c.strokeRect(padL+hmHi.c*cw+.5,padT+hmHi.r*ch+.5,cw-1,ch-1);}
+}
+
+/* ───────── 图表三：走势 ───────── */
+let trendData=[],trendGeom=null,trendHi=-1;
+function buildTrend(){
+  const sod=startOfDay(Date.now());
+  const first=events.length?startOfDay(events[0].t):sod;
+  const n=Math.max(2,Math.min(90,Math.round((sod-first)/DAY)+1));
+  const from=sod-(n-1)*DAY;
+  const arr=Array.from({length:n},(_,i)=>({day:from+i*DAY,c:0}));
+  const idx=new Map();arr.forEach((p,i)=>idx.set(p.day,i));
+  for(const e of events){const i=idx.get(startOfDay(e.t));if(i!==undefined)arr[i].c++;}
+  arr.forEach((p,i)=>{let s=0,c=0;for(let j=Math.max(0,i-6);j<=i;j++){s+=arr[j].c;c++;}p.m=s/c;});
+  trendData=arr;
+}
+function _drawTrend(){
+  const cv=$('#cvTrend'),{c,w,h}=ctx2d(cv,200);
+  const padL=10,padR=10,padT=26,padB=20,iw=w-padL-padR,ih=h-padT-padB;
+  trendGeom={padL,iw};
+  const data=trendData;
+  if(data.length<2){c.fillStyle=C.faint;c.font='12px Georgia,serif';c.textAlign='center';
+    c.fillText('暂无数据',w/2,padT+ih/2);return;}
+  const maxV=Math.max(1,...data.map(p=>p.c));
+  const yMax=Math.max(3,Math.ceil(maxV/5)*5);
+  const X=i=>padL+i/(data.length-1)*iw,Y=v=>padT+ih-v/yMax*ih;
+  c.strokeStyle=C.line;c.lineWidth=1;c.setLineDash([2,4]);
+  [yMax/2,yMax].forEach(v=>{c.beginPath();c.moveTo(padL,Y(v)+.5);c.lineTo(w-padR,Y(v)+.5);c.stroke();});
+  c.setLineDash([]);
+  c.strokeStyle='rgba(166,114,56,.42)';c.lineWidth=1;c.beginPath();
+  data.forEach((p,i)=>i?c.lineTo(X(i),Y(p.c)):c.moveTo(X(i),Y(p.c)));c.stroke();
+  c.strokeStyle=C.ink;c.lineWidth=1.8;c.beginPath();
+  data.forEach((p,i)=>i?c.lineTo(X(i),Y(p.m)):c.moveTo(X(i),Y(p.m)));c.stroke();
+  c.fillStyle=C.faint;c.font='10px Georgia,serif';
+  c.textAlign='left';c.fillText(String(yMax),4,padT-10);
+  const lbl=d=>{const x=new Date(d);return (x.getMonth()+1)+'/'+x.getDate();};
+  c.textAlign='center';
+  c.fillText(lbl(data[0].day),padL+12,h-6);
+  c.fillText(lbl(data[data.length-1].day),w-padR-12,h-6);
+  if(data.length>24)c.fillText(lbl(data[Math.floor(data.length/2)].day),w/2,h-6);
+  if(trendHi>=0&&trendHi<data.length){const p=data[trendHi];
+    c.fillStyle=C.amber;c.beginPath();c.arc(X(trendHi),Y(p.c),3,0,7);c.fill();
+    const d=new Date(p.day);c.fillStyle=C.ink2;c.font='11px Georgia,serif';
+    c.fillText(`${d.getMonth()+1}月${d.getDate()}日 · ${p.c} 支`,Math.min(w-48,Math.max(48,X(trendHi))),14);}
+}
+
+/* ───────── 图表四：工作日与周末 ───────── */
+function drawWeek(){
+  const cv=$('#cvWeek'),{c,w,h}=ctx2d(cv,168);
+  const now=startOfDay(Date.now());
+  const s=statsRange===Infinity?(events.length?startOfDay(events[0].t):now):now-(statsRange-1)*DAY;
+  const sums=Array(7).fill(0),days=Array(7).fill(0);
+  const byDay={};for(const e of events){if(e.t<s)continue;const k=startOfDay(e.t);byDay[k]=(byDay[k]||0)+1;}
+  for(let d=s;d<=now;d+=DAY){const i=(new Date(d).getDay()+6)%7;days[i]++;sums[i]+=byDay[d]||0;}
+  const avg=sums.map((v,i)=>days[i]?v/days[i]:0);
+  const padL=10,padB=22,padT=16,iw=w-padL-10,ih=h-padT-padB;
+  const bw=iw/7,barW=Math.min(30,bw*.4),maxA=Math.max(...avg,1);
+  for(let i=0;i<7;i++){
+    const bh=avg[i]/maxA*ih,x=padL+i*bw+(bw-barW)/2,y=padT+ih-bh;
+    if(avg[i]>0){c.fillStyle=i>=5?C.ink:C.amber;rr(c,x,y,barW,Math.max(2,bh),2);c.fill();}
+    c.font='10px Georgia,serif';c.textAlign='center';
+    if(days[i]){c.fillStyle=C.ink2;c.fillText(avg[i].toFixed(1),padL+i*bw+bw/2,y-6);}
+    c.fillStyle=C.faint;c.fillText('一二三四五六日'[i],padL+i*bw+bw/2,h-8);}
+  const dw=days.slice(0,5).reduce((a,b)=>a+b,0),de=days.slice(5).reduce((a,b)=>a+b,0);
+  const sw=sums.slice(0,5).reduce((a,b)=>a+b,0),se=sums.slice(5).reduce((a,b)=>a+b,0);
+  $('#weekNote').textContent=events.length?
+    `工作日日均 ${(sw/Math.max(1,dw)).toFixed(1)} 支 · 周末日均 ${(se/Math.max(1,de)).toFixed(1)} 支`:'暂无数据';
+}
+
+/* ───────── 触摸读数 ───────── */
+function attachProbe(cv,cb){
+  const pos=e=>{const r=cv.getBoundingClientRect();const p=e.touches?e.touches[0]:e;
+    return {x:p.clientX-r.left,y:p.clientY-r.top};};
+  cv.addEventListener('touchstart',e=>cb.onMove(pos(e).x,pos(e).y),{passive:true});
+  cv.addEventListener('touchmove',e=>{e.preventDefault();cb.onMove(pos(e).x,pos(e).y);},{passive:false});
+  cv.addEventListener('touchend',()=>cb.onEnd());
+  cv.addEventListener('mousemove',e=>cb.onMove(pos(e).x,pos(e).y));
+  cv.addEventListener('mouseleave',()=>cb.onEnd());
+}
+function bindProbes(){
+  attachProbe($('#cvHourly'),{
+    onMove:x=>{if(!hourlyGeom)return;
+      const i=Math.max(0,Math.min(23,Math.floor((x-hourlyGeom.padL)/hourlyGeom.bw)));
+      if(i!==hourlyHi){hourlyHi=i;_drawHourly();}},
+    onEnd:()=>{hourlyHi=-1;_drawHourly();}});
+  attachProbe($('#cvHeat'),{
+    onMove:(x,y)=>{if(!hmGeom||!hmGrid)return;
+      const col=Math.max(0,Math.min(23,Math.floor((x-hmGeom.padL)/hmGeom.cw)));
+      const row=Math.max(0,Math.min(6,Math.floor((y-hmGeom.padT)/hmGeom.ch)));
+      if(!hmHi||hmHi.r!==row||hmHi.c!==col){hmHi={r:row,c:col};_drawHeatmap();
+        $('#heatRead').textContent=`星期${'一二三四五六日'[row]} ${col} 时 · ${hmGrid[row][col]} 支`;}},
+    onEnd:()=>{hmHi=null;_drawHeatmap();$('#heatRead').textContent='滑过格子，查看具体时辰';}});
+  attachProbe($('#cvTrend'),{
+    onMove:x=>{if(!trendGeom||trendData.length<2)return;
+      const n=trendData.length;
+      const i=Math.max(0,Math.min(n-1,Math.round((x-trendGeom.padL)/trendGeom.iw*(n-1))));
+      if(i!==trendHi){trendHi=i;_drawTrend();}},
+    onEnd:()=>{trendHi=-1;_drawTrend();}});
+}
+
+/* ───────── 滚轮选择器 ───────── */
+class Wheel{
+  constructor(box,labels){
+    this.box=box;this.h=44;this.n=labels.length;this.maxOff=(this.n-1)*this.h;
+    this.off=0;this.raf=null;this.vel=0;this._pt=0;
+    const items=document.createElement('div');items.className='wheel-items';box.appendChild(items);
+    this.items=labels.map((t,i)=>{const d=document.createElement('div');
+      d.className='wheel-item'+(i===0?' special':'');d.textContent=t;d.style.top=(i*this.h)+'px';
+      items.appendChild(d);return d;});
+    this.itemsEl=items;
+    let y0,off0,lastY,lastT,moved;
+    box.addEventListener('touchstart',e=>{this.stop();const t=e.touches[0];
+      y0=lastY=t.clientY;off0=this.off;lastT=performance.now();moved=0;this.vel=0;},{passive:true});
+    box.addEventListener('touchmove',e=>{e.preventDefault();
+      const t=e.touches[0],now=performance.now(),dy=t.clientY-y0;
+      moved=Math.max(moved,Math.abs(dy));
+      let o=off0-dy;
+      if(o<0)o*=.3;if(o>this.maxOff)o=this.maxOff+(o-this.maxOff)*.3;
+      const dt=now-lastT;
+      if(dt>0){const v=(lastY-t.clientY)/dt;this.vel=this.vel*.6+v*.4;}
+      lastY=t.clientY;lastT=now;this.setOff(o);},{passive:false});
+    box.addEventListener('touchend',e=>{
+      if(moved<6){const t=e.changedTouches[0],r=box.getBoundingClientRect();
+        let idx=Math.round(this.off/this.h+(t.clientY-(r.top+r.height/2))/this.h);
+        idx=Math.max(0,Math.min(this.n-1,idx));this.snapTo(idx*this.h);return;}
+      this.inertia();});
+    box.addEventListener('wheel',e=>{e.preventDefault();this.stop();
+      this.off=Math.max(0,Math.min(this.maxOff,this.off+e.deltaY*.5));this.paint();
+      clearTimeout(this._wt);
+      this._wt=setTimeout(()=>this.snapTo(Math.round(this.off/this.h)*this.h),140);},{passive:false});
+  }
+  setOff(o){this.off=o;this.paint();}
+  paint(){const H=this.box.clientHeight,cy=H/2;
+    this.itemsEl.style.transform=`translateY(${cy-this.h/2-this.off}px)`;
+    for(let i=0;i<this.n;i++){const el=this.items[i],d=Math.abs(i*this.h-this.off);
+      if(d>H/2+this.h){el.style.visibility='hidden';continue;}
+      el.style.visibility='visible';
+      const t=Math.min(1,d/(H/2));
+      el.style.opacity=(1-t*t*.96).toFixed(3);
+      el.style.transform=`scale(${1-t*.12})`;}}
+  inertia(){let v=this.vel;
+    const step=now=>{const dt=Math.min(48,now-(this._pt||now));this._pt=now;
+      this.off+=v*dt;let hit=false;
+      if(this.off<0){this.off=0;hit=true;}
+      if(this.off>this.maxOff){this.off=this.maxOff;hit=true;}
+      v*=Math.pow(.994,dt);this.paint();
+      if(hit||Math.abs(v)<.02){this.snapTo(Math.round(this.off/this.h)*this.h);return;}
+      this.raf=requestAnimationFrame(step);};
+    this._pt=performance.now();this.raf=requestAnimationFrame(step);}
+  snapTo(target){this.stop();
+    const from=this.off,t0=performance.now(),dur=230;
+    const step=now=>{let p=Math.min(1,(now-t0)/dur);p=1-Math.pow(1-p,3);
+      this.setOff(from+(target-from)*p);
+      if(p<1)this.raf=requestAnimationFrame(step);};
+    this.raf=requestAnimationFrame(step);}
+  stop(){if(this.raf)cancelAnimationFrame(this.raf);this.raf=null;}
+  index(){return Math.max(0,Math.min(this.n-1,Math.round(this.off/this.h)));}
+  setIndex(i,instant){if(instant){this.stop();this.off=i*this.h;this.paint();}
+    else this.snapTo(i*this.h);}
+}
+let limitWheel=null;
+function openLimit(){
+  openSheet('#sheetLimit');
+  if(!limitWheel){
+    const labels=['无上限',...Array.from({length:60},(_,i)=>(i+1)+' 支')];
+    limitWheel=new Wheel($('#wheelBox'),labels);}
+  const idx=prefs.limitTouched?(prefs.dailyLimit||0):10;
+  limitWheel.setIndex(idx,true);
+}
+async function saveLimit(){
+  const i=limitWheel.index();
+  prefs.dailyLimit=i===0?null:i;prefs.limitTouched=true;
+  await DB.setPref('limit',prefs);
+  closeSheet();renderAll();
+  toast(prefs.dailyLimit?`每日上限设为 ${prefs.dailyLimit} 支`:'已取消上限');
+}
+
+/* ───────── 弹层 / 提示 ───────── */
+function openSheet(sel){$('#mask').classList.add('show');$(sel).classList.add('show');}
+function closeSheet(){$('#mask').classList.remove('show');$$('.sheet').forEach(s=>s.classList.remove('show'));}
+let confirmRes=null;
+function confirmSheet(title,body,okText){
+  return new Promise(res=>{
+    $('#cfTitle').textContent=title;$('#cfBody').textContent=body;
+    const ok=$('#cfOk');ok.textContent=okText;
+    openSheet('#sheetConfirm');
+    confirmRes=res;
+    ok.onclick=()=>{closeSheet();confirmRes=null;res(true);};
+    $('#cfCancel').onclick=()=>{closeSheet();confirmRes=null;res(false);};
+  });
+}
+let toastT=null;
+function toast(msg){const t=$('#toast');t.textContent=msg;t.classList.add('show');
+  clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove('show'),2200);}
+
+/* ───────── 今日页 ───────── */
+function renderToday(){
+  const now=Date.now(),sod=startOfDay(now);
+  const today=events.filter(e=>e.t>=sod);
+  const n=today.length,lim=prefs.dailyLimit,d=new Date(now);
+  $('#todayDate').textContent=cnDate(d)+' · '+cnWeek(d);
+  const num=$('#todayNum');num.textContent=n;
+  num.classList.toggle('over',!!lim&&n>=lim);
+  const sub=$('#todaySub');
+  let st='今日';
+  if(lim){if(n>lim)st=`超出上限 ${n-lim} 支`;else if(n===lim)st='已达上限';else st=`今日 · 上限 ${lim} 支`;}
+  sub.textContent=st;sub.classList.toggle('warn',!!lim&&n>=lim);
+  $('#limitWrap').style.display=lim?'':'none';
+  if(lim){$('#limitBar i').style.width=Math.min(100,n/lim*100)+'%';
+    $('#limitBar').classList.toggle('over',n>=lim);}
+  const last=events.length?events[events.length-1].t:null;
+  $('#statLast').textContent=last?fmtDur(now-last):'—';
+  let c30=0;const s30=sod-29*DAY;
+  for(const e of events)if(e.t>=s30)c30++;
+  $('#statAvg').textContent=(c30/30).toFixed(1)+' 支';
+  const g=longestGap(now);
+  $('#statGap').textContent=fmtDur(g.ms);
+  $('#gapLive').textContent=g.live?'（进行中）':'';
+  $('#statGap').classList.toggle('live',g.live);
+  const bins=hourlyBins(30);let pv=0,pk=0;
+  bins.forEach((v,i)=>{if(v>pv){pv=v;pk=i;}});
+  $('#peakLine').textContent=events.length?
+    (pv>=3?`近 30 日，你的高峰常在 ${pk} 时前后`:'再记录几天，高峰时段就会浮现')
+    :'按下圆章，记下第一支烟';
+  const tb=new Array(24).fill(0);
+  for(const e of events)if(e.t>=sod)tb[new Date(e.t).getHours()]++;
+  const mx=Math.max(...tb,1);
+  $('#miniBars').innerHTML=tb.map(v=>v?`<span style="height:${Math.max(10,v/mx*100)}%"></span>`
+    :'<span class="z"></span>').join('');
+  $('#limitValueToday').textContent=lim?lim+' 支':'未设置';
+}
+function puff(){const s=$('#stampSmoke');s.classList.remove('go');void s.getBoundingClientRect();s.classList.add('go');}
+function pop(){const n=$('#todayNum');n.classList.remove('pop');void n.offsetWidth;n.classList.add('pop');}
+let undoTimer=null,lastEv=null;
+function showUndo(ev){lastEv=ev;
+  $('#undoTime').textContent='已记录 '+fmtHM(ev.t);
+  $('#undoPill').classList.add('show');
+  clearTimeout(undoTimer);undoTimer=setTimeout(()=>$('#undoPill').classList.remove('show'),5000);}
+
+/* ───────── 分析页 ───────── */
+function rangeLabel(){return {7:'近 7 日',30:'近 30 日',90:'近 90 日',Infinity:'全部'}[statsRange];}
+function renderStats(){
+  const now=Date.now(),sod=startOfDay(now),R=statsRange;
+  const s0=R===Infinity?0:sod-(R-1)*DAY;
+  const inR=events.filter(e=>e.t>=s0),total=inR.length;
+  const days=R===Infinity?Math.max(1,new Set(inR.map(e=>startOfDay(e.t))).size):R;
+  $('#ovTotal').textContent=total;
+  $('#ovTotalL').textContent=rangeLabel()+' 总计';
+  $('#ovAvg').textContent=(total/days).toFixed(1);
+  let top=null;const bd={};
+  for(const e of inR){const k=startOfDay(e.t);bd[k]=(bd[k]||0)+1;}
+  for(const k in bd)if(!top||bd[k]>top.c)top={k:+k,c:bd[k]};
+  $('#ovTop').textContent=top?`${fmtMD(top.k)} · ${top.c} 支`:'—';
+  const cmp=$('#ovCmp');let ct='—';cmp.classList.remove('up','down');
+  if(R!==Infinity){
+    let cp=0;const ps=s0-R*DAY;
+    for(const e of events)if(e.t>=ps&&e.t<s0)cp++;
+    if(cp>0&&total>0){const d=Math.round((total-cp)/cp*100);
+      if(d>0){ct='↑ +'+d+'%';cmp.classList.add('up');}
+      else if(d<0){ct='↓ −'+Math.abs(d)+'%';cmp.classList.add('down');}
+      else ct='→ 持平';}
+    else if(total>0)ct='新增';}
+  cmp.textContent=ct;
+  _drawHourly();_drawHeatmap();buildTrend();_drawTrend();drawWeek();
+  const bins=hourlyBins(statsRange);let pk=0;
+  bins.forEach((v,i)=>{if(v>bins[pk])pk=i;});
+  $('#noteHourly').textContent=bins[pk]>0?`高峰在 ${pk} 时前后，该时段共 ${bins[pk]} 支。`:'暂无记录。';
+  if(hmGrid){let mr=0,mc=0,mv=0;
+    hmGrid.forEach((row,r)=>row.forEach((v,cc)=>{if(v>mv){mv=v;mr=r;mc=cc;}}));
+    $('#noteHeat').textContent=mv>0?`最密集的一格：星期${'一二三四五六日'[mr]} ${mc} 时，共 ${mv} 支。`:'暂无记录。';}
+  const td=trendData;
+  if(td.length>=14){
+    const av=td.slice(-7).reduce((x,p)=>x+p.c,0)/7,bv=td.slice(-14,-7).reduce((x,p)=>x+p.c,0)/7;
+    $('#noteTrend').textContent=`近 7 日日均 ${av.toFixed(1)} 支，此前 7 日 ${bv.toFixed(1)} 支。`;}
+  else if(td.length>=1){$('#noteTrend').textContent=`有记录以来日均 ${(td.reduce((x,p)=>x+p.c,0)/td.length).toFixed(1)} 支。`;}
+  else $('#noteTrend').textContent='暂无数据。';
+  $('#heatRead').textContent='滑过格子，查看具体时辰';
+}
+
+/* ───────── 历史页 ───────── */
+function renderHistory(reset){
+  if(reset)histDays=14;
+  const end=startOfDay(Date.now()),from=end-(histDays-1)*DAY;
+  const box=$('#histList');box.innerHTML='';
+  const groups={};
+  for(const e of events){if(e.t<from)continue;const k=startOfDay(e.t);(groups[k]=groups[k]||[]).push(e);}
+  const keys=Object.keys(groups).map(Number).sort((a,b)=>b-a);
+  if(!keys.length)box.innerHTML='<p class="empty">这段日子还没有记录</p>';
+  for(const k of keys){
+    const arr=groups[k].sort((a,b)=>b.t-a.t),d=new Date(k);
+    const sec=document.createElement('section');sec.className='hist-day';
+    sec.innerHTML=`<header><span class="d">${cnDate(d)}</span><span class="wd">${cnWeek(d)}</span><span class="cnt">${arr.length} 支</span></header>`;
+    for(const e of arr){
+      const row=document.createElement('div');row.className='hist-row';
+      row.innerHTML=`<span class="t">${fmtHM(e.t)}</span><button class="del" data-id="${e.id}">×</button>`;
+      sec.appendChild(row);}
+    box.appendChild(sec);}
+  $('#histOlder').style.display=events.length&&events[0].t<from?'':'none';
+}
+async function onHistDel(e){
+  const b=e.target.closest('.del');if(!b)return;
+  const ev=events.find(x=>x.id===b.dataset.id);if(!ev)return;
+  const ok=await confirmSheet('删除这条记录？',
+    `${cnDate(new Date(startOfDay(ev.t)))} ${fmtHM(ev.t)} 的记录将被移除。`,'删除');
+  if(!ok)return;
+  events=events.filter(x=>x.id!==ev.id);
+  await DB.delEvent(ev.id);
+  renderAll();toast('已删除');
+}
+function openBackfill(){
+  const d=new Date();
+  const v=`${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+  const inp=$('#backfillInput');inp.value=v;inp.max=v;
+  openSheet('#sheetBackfill');
+}
+async function saveBackfill(){
+  const v=$('#backfillInput').value,ts=v?new Date(v).getTime():NaN;
+  if(!ts||isNaN(ts)){toast('请选择时间');return;}
+  if(ts>Date.now()+6e4){toast('时间还不能在未来');return;}
+  await addEvent(ts);closeSheet();renderAll();toast('已补记 '+fmtHM(ts));
+}
+
+/* ───────── 设置页 / 数据 ───────── */
+function renderSettings(){
+  $('#limitValue').textContent=prefs.dailyLimit?prefs.dailyLimit+' 支':'未设置';
+  $('#setCount').textContent=events.length+' 条';
+}
+function buildExport(){return JSON.stringify({app:'smoke-trace',version:1,
+  exportedAt:new Date().toISOString(),prefs,events});}
+function doExport(){
+  const d=new Date(),ds=`${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+  const blob=new Blob([buildExport()],{type:'application/json'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);a.download='smoke-trace-'+ds+'.json';
+  document.body.appendChild(a);a.click();a.remove();
+  setTimeout(()=>URL.revokeObjectURL(a.href),3000);
+  closeSheet();toast('已开始下载');
+}
+async function doCopy(){
+  const json=buildExport();
+  try{await navigator.clipboard.writeText(json);toast('已复制到剪贴板');}
+  catch(e){const ta=document.createElement('textarea');ta.value=json;
+    document.body.appendChild(ta);ta.select();
+    try{document.execCommand('copy');toast('已复制到剪贴板');}catch(_){toast('复制失败，请改用下载');}
+    ta.remove();}
+  closeSheet();
+}
+function doImport(e){
+  const f=e.target.files[0];e.target.value='';if(!f)return;
+  const r=new FileReader();
+  r.onload=async()=>{
+    try{
+      const data=JSON.parse(r.result);
+      const list=Array.isArray(data)?data:data.events;
+      if(!Array.isArray(list))throw 0;
+      const valid=list.filter(x=>x&&typeof x.t==='number'&&isFinite(x.t)).map(x=>({id:x.id||uid(),t:x.t}));
+      const haveId=new Set(events.map(x=>x.id)),haveT=new Set(events.map(x=>x.t));
+      const add=valid.filter(x=>!haveId.has(x.id)&&!haveT.has(x.t));
+      for(const ev of add)await DB.putEvent(ev);
+      events=events.concat(add).sort((a,b)=>a.t-b.t);
+      if(data.prefs&&typeof data.prefs==='object'&&'dailyLimit'in data.prefs){
+        prefs={dailyLimit:data.prefs.dailyLimit??null,limitTouched:!!data.prefs.limitTouched};
+        await DB.setPref('limit',prefs);}
+      renderAll();
+      toast(add.length?`已导入 ${add.length} 条记录`:'没有需要导入的新记录');
+    }catch(_){toast('文件格式不正确');}
+  };
+  r.readAsText(f);
+}
+async function doClear(){
+  if(!events.length){toast('没有数据');return;}
+  const ok=await confirmSheet('清空全部数据？',
+    `共 ${events.length} 条记录将被永久删除，无法恢复。建议先导出一份备份。`,'永久删除');
+  if(!ok)return;
+  await DB.clearEvents();events=[];renderAll();toast('已清空');
+}
+
+/* ───────── 页面调度 ───────── */
+function renderAll(){renderToday();renderSettings();
+  if(cur==='stats')renderStats();
+  if(cur==='history')renderHistory(false);}
+function showPage(name){
+  cur=name;
+  $$('.page').forEach(p=>p.classList.toggle('active',p.id==='page-'+name));
+  $$('#tabs button').forEach(b=>b.classList.toggle('active',b.dataset.page===name));
+  if(name==='today')renderToday();
+  if(name==='stats')renderStats();
+  if(name==='history')renderHistory(true);
+  if(name==='settings')renderSettings();
+  window.scrollTo(0,0);
+}
+
+/* ───────── 初始化 ───────── */
+function bindUI(){
+  $('#tabs').addEventListener('click',e=>{const b=e.target.closest('button[data-page]');if(b)showPage(b.dataset.page);});
+  $('#stampBtn').addEventListener('click',async()=>{
+    const ev=await addEvent(Date.now());
+    renderToday();puff();pop();showUndo(ev);});
+  $('#undoBtn').addEventListener('click',async()=>{
+    if(!lastEv)return;
+    await DB.delEvent(lastEv.id);
+    events=events.filter(x=>x.id!==lastEv.id);
+    lastEv=null;$('#undoPill').classList.remove('show');
+    renderAll();toast('已撤销');});
+  $('#rangeSeg').addEventListener('click',e=>{const b=e.target.closest('button[data-r]');if(!b)return;
+    statsRange=b.dataset.r==='all'?Infinity:+b.dataset.r;
+    $$('#rangeSeg button').forEach(x=>x.classList.toggle('on',x===b));
+    renderStats();});
+  $('#limitOpenToday').onclick=openLimit;
+  $('#limitOpen').onclick=openLimit;
+  $('#limitSave').onclick=saveLimit;
+  $('#btnBackfill').onclick=openBackfill;
+  $('#backfillSave').onclick=saveBackfill;
+  $('#histList').addEventListener('click',onHistDel);
+  $('#histOlder').onclick=()=>{histDays+=28;renderHistory(false);};
+  $('#btnExport').onclick=()=>openSheet('#sheetExport');
+  $('#expDownload').onclick=doExport;
+  $('#expCopy').onclick=doCopy;
+  $('#btnImport').onclick=()=>$('#fileImport').click();
+  $('#fileImport').onchange=doImport;
+  $('#btnClear').onclick=doClear;
+  $('#mask').addEventListener('click',()=>{closeSheet();if(confirmRes){confirmRes(false);confirmRes=null;}});
+  $$('.sheet [data-close]').forEach(b=>b.addEventListener('click',closeSheet));
+  $('#a2hsClose').onclick=()=>{$('#a2hs').style.display='none';localStorage.setItem('st_tip','1');};
+  bindProbes();
+  document.addEventListener('touchstart',()=>{},{passive:true});   // 激活 iOS :active
+  let rz=null;
+  window.addEventListener('resize',()=>{clearTimeout(rz);
+    rz=setTimeout(()=>{if(cur==='stats')renderStats();if(cur==='today')renderToday();},200);});
+  document.addEventListener('visibilitychange',()=>{if(document.hidden)return;
+    if(cur==='today')renderToday();if(cur==='history')renderHistory(false);});
+  setInterval(()=>{if(cur==='today'&&!document.hidden)renderToday();},30000);
+}
+async function init(){
+  await DB.open();
+  events=(await DB.getEvents()).sort((a,b)=>a.t-b.t);
+  const p=await DB.getPref('limit');if(p)prefs=p;
+  bindUI();
+  const isIOS=/iP(hone|od|ad)/.test(navigator.userAgent)
+    ||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
+  if(isIOS&&!navigator.standalone&&!localStorage.getItem('st_tip'))
+    $('#a2hs').style.display='flex';
+  showPage('today');
+}
+init();
+</script>
+</body>
+</html>
