@@ -62,14 +62,15 @@ main{padding:calc(env(safe-area-inset-top) + 16px) 22px calc(104px + env(safe-ar
 .limit-mini:active{color:var(--ink2)}
 
 .stamp-wrap{display:flex;flex-direction:column;align-items:center;margin-top:32px;position:relative}
-#fx{position:absolute;left:50%;top:-150px;width:300px;height:340px;margin-left:-150px;pointer-events:none;z-index:6}
+#fx{position:absolute;left:50%;top:0;width:154px;height:154px;margin-left:-77px;
+  border-radius:50%;pointer-events:none;z-index:6}
 .stamp{width:154px;height:154px;border-radius:50%;background:var(--ink);border:0;position:relative;
   display:flex;align-items:center;justify-content:center;cursor:pointer;transition:transform .15s ease}
 .stamp:active{transform:scale(.95)}
 .stamp::after{content:"";position:absolute;inset:-11px;border:1px solid rgba(43,38,34,.3);border-radius:50%;pointer-events:none}
 .stamp svg{width:63px;height:100px;overflow:visible}
 .smoke path{fill:none;stroke:var(--paper);stroke-width:2;stroke-linecap:round;transition:stroke .25s}
-.smoke.hot path{stroke:#FFB763}
+.smoke.hot path{stroke:#E8843F}
 .smoke .base{opacity:.5}
 .smoke .rise{stroke-dasharray:90;stroke-dashoffset:90;opacity:0}
 .smoke.go .rise{animation:rise 1s ease-out forwards}
@@ -124,7 +125,6 @@ main{padding:calc(env(safe-area-inset-top) + 16px) 22px calc(104px + env(safe-ar
 .note{margin-top:10px;font-size:14px;color:var(--faint);line-height:1.7}
 .read{font-size:14px;color:var(--ink2);min-height:20px;margin-bottom:6px}
 canvas{width:100%;display:block;touch-action:none}
-#fx{touch-action:none}
 
 /* ── 历史页 ── */
 .ghost-btn{background:none;border:1px solid var(--line);border-radius:7px;padding:10px 18px;
@@ -304,7 +304,7 @@ nav svg{width:26px;height:26px;display:block;margin:0 auto 4px;fill:none;stroke:
       <button class="row-btn danger" id="btnClear"><span>清空全部数据</span><span>›</span></button>
       <div class="about">
         <p>数据只保存在这台设备的浏览器里，不会上传到任何服务器。iOS 上 Safari 与 Chrome 等浏览器使用同一内核，一个网页若约七天不曾打开，系统可能清掉它的本地数据；但「添加到主屏幕」后、从图标打开使用，则不受此限制。请务必从主屏幕图标进入「烟迹」，并偶尔导出一份备份。</p>
-        <p class="ver">烟 迹 · 卷 五</p>
+        <p class="ver">烟 迹 · 卷 六</p>
       </div>
     </section>
   </main>
@@ -454,83 +454,95 @@ function peakHours(bins){let max=0;bins.forEach(v=>{if(v>max)max=v;});
   return{max,idx:bins.reduce((a,v,i)=>{if(v===max)a.push(i);return a;},[])};}
 const fmtHours=list=>list.map(i=>String(i)).join('、')+' 时';
 
-/* ───────── 点火特效（打火 · 余烬 · 末日风） ───────── */
+/* ───────── 点燃特效：炭火余烬，严格裁剪在圆章内 ───────── */
 const FX=(()=>{
   const cv=document.getElementById('fx');
   if(!cv)return{fire(){}};
   const ctx=cv.getContext('2d');
-  const W=300,H=340,dpr=Math.min(3,window.devicePixelRatio||1);
-  cv.width=W*dpr;cv.height=H*dpr;ctx.scale(dpr,dpr);
-  const CX=150, BASE=152, CY=BASE+77;               // BASE＝章顶，CY＝章心
+  const S=154,dpr=Math.min(3,window.devicePixelRatio||1);
+  cv.width=S*dpr;cv.height=S*dpr;ctx.scale(dpr,dpr);
+  const CX=77,CY=77,R=75;                           // 裁剪圆（比章面略小 1px 防露边）
   const rnd=(a,b)=>a+Math.random()*(b-a);
-  const SC=['#FFE9C9','#FFD9A0','#FFAA33','#FF6B35','#FF5A1E'];
-  let running=false,t0=0,sparks=[],smoke=[];
-  function drawFlame(x,base,h,w,sway,color){
-    const tx=x+sway,ty=base-h;
-    ctx.fillStyle=color;ctx.beginPath();
-    ctx.moveTo(x-w,base);
-    ctx.bezierCurveTo(x-w*1.15,base-h*.35,tx-w*.5,ty+h*.35,tx,ty);
-    ctx.bezierCurveTo(tx+w*.5,ty+h*.35,x+w*1.15,base-h*.35,x+w,base);
-    ctx.quadraticCurveTo(x,base+w*.55,x-w,base);
-    ctx.fill();
-  }
+  let running=false,t0=0,cracks=[],sparks=[],coreX=CX,coreY=CY;
+  const IGN=.15,LIFE=1.6;
+  const flk=(t,p1,p2)=>.7+.24*Math.sin(t*p1)+.12*Math.sin(t*p2+1.3);
   function loop(now){
-    const t=(now-t0)/1000, IGN=.12, FULL=.85, DIE=1.35;
-    ctx.clearRect(0,0,W,H);
-    ctx.globalCompositeOperation='lighter';
-    let fh=0;                                        // 火苗高度系数
-    if(t<IGN)fh=t/IGN*.35;
-    else if(t<FULL)fh=.35+(t-IGN)/(FULL-IGN)*.65;
-    else if(t<DIE)fh=1-(t-FULL)/(DIE-FULL);
-    /* 章面炭火红光 */
-    if(t<DIE){
-      const ga=t<IGN?t/IGN*.30:(t<FULL?.30+.10*Math.sin(t*18):.40*(1-(t-FULL)/(DIE-FULL)));
-      const g=ctx.createRadialGradient(CX,CY,10,CX,CY,105);
-      g.addColorStop(0,`rgba(255,110,30,${ga})`);
-      g.addColorStop(.55,`rgba(255,60,10,${ga*.45})`);
-      g.addColorStop(1,'rgba(255,60,10,0)');
-      ctx.fillStyle=g;ctx.beginPath();ctx.arc(CX,CY,105,0,7);ctx.fill();
+    const t=(now-t0)/1000;
+    ctx.clearRect(0,0,S,S);
+    ctx.save();
+    ctx.beginPath();ctx.arc(CX,CY,R,0,7);ctx.clip(); // 一切都在圆内
+    let g=0;                                         // 燃烧强度
+    if(t<IGN)g=t/IGN;
+    else if(t<.95)g=.92+.08*Math.sin(t*26);
+    else g=Math.max(0,1-(t-.95)/(LIFE-.95));
+    if(g>0){
+      const f=Math.min(1.05,flk(t,19,7.3))*g;
+      /* 章心炭火：暗红→橙的内部透光 */
+      const gy=CY+R*.15;
+      const gr=ctx.createRadialGradient(CX,gy,2,CX,gy,R*1.02);
+      gr.addColorStop(0,`rgba(255,118,38,${.52*f})`);
+      gr.addColorStop(.38,`rgba(224,58,10,${.30*f})`);
+      gr.addColorStop(1,'rgba(110,18,0,0)');
+      ctx.fillStyle=gr;ctx.fillRect(0,0,S,S);
+      /* 圆缘暗火环：像炭饼边缘在烧 */
+      const rg=ctx.createRadialGradient(CX,CY,R*.68,CX,CY,R);
+      rg.addColorStop(0,'rgba(0,0,0,0)');
+      rg.addColorStop(1,`rgba(255,86,20,${.20*f})`);
+      ctx.fillStyle=rg;ctx.fillRect(0,0,S,S);
+      /* 燃烧裂纹 */
+      ctx.lineCap='round';ctx.lineJoin='round';
+      for(const ck of cracks){
+        const a=Math.min(.92,g*ck.a*flk(t,15+ck.fs,27));
+        ctx.strokeStyle=`rgba(255,${138+((ck.fs*11)|0)},36,${a})`;
+        ctx.lineWidth=ck.w;
+        ctx.shadowColor='rgba(255,116,28,.85)';ctx.shadowBlur=7*f;
+        ctx.beginPath();
+        ck.pts.forEach((p,i)=>i?ctx.lineTo(p[0],p[1]):ctx.moveTo(p[0],p[1]));
+        ctx.stroke();
+      }
+      ctx.shadowBlur=0;
+      /* 火星：细小、上飘、闪灭 */
+      ctx.globalCompositeOperation='lighter';
+      for(let i=sparks.length-1;i>=0;i--){const p=sparks[i];
+        p.x+=p.vx;p.y+=p.vy;p.vy-=.007;p.vx+=Math.sin(t*19+i*2.1)*.018;
+        p.life-=1/60;
+        if(p.life<=0){sparks.splice(i,1);continue;}
+        const al=Math.max(0,p.life/p.max);
+        ctx.fillStyle=`rgba(255,${168+((54*al)|0)},88,${al})`;
+        ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,7);ctx.fill();}
+      /* 起燃瞬间的一点白热 */
+      if(t<.22){const fa=1-t/.22;
+        const fg=ctx.createRadialGradient(coreX,coreY,0,coreX,coreY,16);
+        fg.addColorStop(0,`rgba(255,238,198,${.75*fa})`);
+        fg.addColorStop(1,'rgba(255,120,30,0)');
+        ctx.fillStyle=fg;ctx.fillRect(0,0,S,S);}
+      ctx.globalCompositeOperation='source-over';
     }
-    /* 火苗（三层叠亮） */
-    if(fh>.01){
-      const ht=118*fh,wd=30*fh;
-      const sw=Math.sin(t*11)*wd*.18+Math.sin(t*23+1.7)*wd*.10;
-      const fl=1+Math.sin(t*29)*.06+Math.sin(t*47)*.04;
-      drawFlame(CX,BASE,ht*fl,wd,sw,'rgba(255,70,10,.20)');
-      drawFlame(CX,BASE,ht*.82*fl,wd*.72,sw*.8,'rgba(255,140,40,.45)');
-      drawFlame(CX,BASE,ht*.58*fl,wd*.48,sw*.6,'rgba(255,200,90,.75)');
-      drawFlame(CX,BASE,ht*.34*fl,wd*.28,sw*.4,'rgba(255,240,190,.9)');
-    }
-    /* 火星 */
-    for(let i=sparks.length-1;i>=0;i--){const p=sparks[i];
-      p.x+=p.vx;p.y+=p.vy;p.vy+=.11;p.vx*=.99;p.life-=1/60;
-      if(p.life<=0){sparks.splice(i,1);continue;}
-      ctx.strokeStyle=p.c;ctx.globalAlpha=Math.max(0,Math.min(1,p.life/p.max));
-      ctx.lineWidth=p.w;ctx.beginPath();
-      ctx.moveTo(p.x,p.y);ctx.lineTo(p.x-p.vx*2.2,p.y-p.vy*2.2);ctx.stroke();
-      ctx.globalAlpha=1;}
-    ctx.globalCompositeOperation='source-over';
-    /* 余烟 */
-    for(let i=smoke.length-1;i>=0;i--){const p=smoke[i];
-      p.y-=p.vy;p.x+=Math.sin((p.y+p.seed)*.05)*.5;p.r+=.35;p.life-=1/60;
-      if(p.life<=0){smoke.splice(i,1);continue;}
-      ctx.fillStyle=`rgba(110,100,92,${Math.max(0,.16*p.life/p.max)})`;
-      ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,7);ctx.fill;}
-    if(t<2.6||sparks.length||smoke.length)requestAnimationFrame(loop);
+    ctx.restore();
+    if(t<LIFE+.1||sparks.length)requestAnimationFrame(loop);
     else running=false;
   }
   function fire(){
-    t0=performance.now();sparks.length=0;smoke.length=0;
-    for(let i=0;i<18;i++){
-      const a=rnd(-Math.PI*.85,-Math.PI*.15),sp=rnd(2.2,6.5);
-      const p={x:CX+rnd(-14,14),y:BASE+rnd(-6,6),vx:Math.cos(a)*sp*rnd(.5,1),
-        vy:Math.sin(a)*sp,life:rnd(.35,.9),w:rnd(1,2.2),
-        c:SC[(Math.random()*SC.length)|0],max:0};
+    t0=performance.now();
+    coreX=CX+rnd(-9,9);coreY=CY+rnd(0,14);
+    cracks=[];sparks=[];
+    const nCr=5+(Math.random()*3|0);                 // 5~7 条随机裂纹
+    for(let i=0;i<nCr;i++){
+      const pts=[[coreX+rnd(-3,3),coreY+rnd(-3,3)]];
+      let x=pts[0][0],y=pts[0][1],a2=rnd(0,Math.PI*2);
+      const segs=3+(Math.random()*4|0);
+      for(let s2=0;s2<segs;s2++){
+        a2+=rnd(-.75,.75);
+        x+=Math.cos(a2)*rnd(10,26);y+=Math.sin(a2)*rnd(10,26);
+        x=Math.max(6,Math.min(S-6,x));y=Math.max(6,Math.min(S-6,y));
+        pts.push([x,y]);}
+      cracks.push({pts,a:rnd(.5,.95),w:rnd(.8,1.6),fs:rnd(0,3)});}
+    for(let i=0;i<12;i++){                           // 细小火星
+      const a=rnd(-Math.PI*.92,-Math.PI*.08),sp2=rnd(.4,1.5);
+      const p={x:coreX+rnd(-10,10),y:coreY+rnd(-6,6),
+        vx:Math.cos(a)*sp2*.45,vy:Math.sin(a)*sp2,
+        r:rnd(.6,1.5),life:rnd(.5,1.2),max:0};
       p.max=p.life;sparks.push(p);}
-    for(let i=0;i<4;i++){
-      const p={x:CX+rnd(-10,10),y:BASE-rnd(20,60),vy:rnd(.7,1.2),
-        r:rnd(4,9),life:rnd(1.4,2.2),seed:rnd(0,100),max:0};
-      p.max=p.life;smoke.push(p);}
     if(!running){running=true;requestAnimationFrame(loop);}
   }
   return{fire};
