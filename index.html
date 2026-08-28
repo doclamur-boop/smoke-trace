@@ -7,13 +7,15 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="烟迹">
 <meta name="theme-color" content="#F5F0E6">
+<link rel="preconnect" href="https://fonts.loli.net" crossorigin>
+<link href="https://fonts.loli.net/css2?family=Noto+Serif+SC:wght@400;700&display=swap" rel="stylesheet">
 <title>烟迹</title>
 <style>
 :root{
   --paper:#F5F0E6; --paper2:#EDE6D6; --ink:#2B2622; --ink2:#57504A;
   --faint:#7A7063; --line:#DCD3C2; --amber:#A67238; --amberD:#7A4E1F;
   --alert:#A8402F; --olive:#5E7355;
-  --serif:"Songti SC","Noto Serif SC",STSong,Georgia,serif;
+  --serif:Calibri,"Source Han Serif SC","Noto Serif SC","思源宋体","Songti SC",STSong,Georgia,serif;
 }
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;
   -webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
@@ -60,12 +62,14 @@ main{padding:calc(env(safe-area-inset-top) + 16px) 22px calc(104px + env(safe-ar
 .limit-mini:active{color:var(--ink2)}
 
 .stamp-wrap{display:flex;flex-direction:column;align-items:center;margin-top:32px;position:relative}
+#fx{position:absolute;left:50%;top:-150px;width:300px;height:340px;margin-left:-150px;pointer-events:none;z-index:6}
 .stamp{width:154px;height:154px;border-radius:50%;background:var(--ink);border:0;position:relative;
   display:flex;align-items:center;justify-content:center;cursor:pointer;transition:transform .15s ease}
 .stamp:active{transform:scale(.95)}
 .stamp::after{content:"";position:absolute;inset:-11px;border:1px solid rgba(43,38,34,.3);border-radius:50%;pointer-events:none}
 .stamp svg{width:63px;height:100px;overflow:visible}
-.smoke path{fill:none;stroke:var(--paper);stroke-width:2;stroke-linecap:round}
+.smoke path{fill:none;stroke:var(--paper);stroke-width:2;stroke-linecap:round;transition:stroke .25s}
+.smoke.hot path{stroke:#FFB763}
 .smoke .base{opacity:.5}
 .smoke .rise{stroke-dasharray:90;stroke-dashoffset:90;opacity:0}
 .smoke.go .rise{animation:rise 1s ease-out forwards}
@@ -84,7 +88,7 @@ main{padding:calc(env(safe-area-inset-top) + 16px) 22px calc(104px + env(safe-ar
 .stats3>div+div{border-left:1px solid var(--line)}
 .stats3 b{display:block;font-size:19px;font-weight:700;margin-bottom:6px}
 .stats3 b.live{color:var(--amberD)}
-.stats3 span{font-size:12px;color:var(--faint);letter-spacing:.02em}
+.stats3 span{font-size:12px;color:var(--faint);letter-spacing:0;white-space:nowrap}
 .peak{margin-top:18px;text-align:center;font-size:15px;color:var(--ink2)}
 .peak::before{content:"·";color:var(--amber);margin-right:8px}
 
@@ -120,6 +124,7 @@ main{padding:calc(env(safe-area-inset-top) + 16px) 22px calc(104px + env(safe-ar
 .note{margin-top:10px;font-size:14px;color:var(--faint);line-height:1.7}
 .read{font-size:14px;color:var(--ink2);min-height:20px;margin-bottom:6px}
 canvas{width:100%;display:block;touch-action:none}
+#fx{touch-action:none}
 
 /* ── 历史页 ── */
 .ghost-btn{background:none;border:1px solid var(--line);border-radius:7px;padding:10px 18px;
@@ -223,6 +228,7 @@ nav svg{width:26px;height:26px;display:block;margin:0 auto 4px;fill:none;stroke:
         <button id="limitMini" class="limit-mini">每日上限 · 未设置</button>
       </div>
       <div class="stamp-wrap">
+        <canvas id="fx" aria-hidden="true"></canvas>
         <button class="stamp" id="stampBtn" aria-label="记录一支烟">
           <svg class="smoke" id="stampSmoke" viewBox="0 0 60 96">
             <path class="base" d="M30 84 C 23 68 37 58 30 42 C 24 29 35 22 30 8"/>
@@ -234,8 +240,8 @@ nav svg{width:26px;height:26px;display:block;margin:0 auto 4px;fill:none;stroke:
       </div>
       <div class="stats3">
         <div><b id="statLast">—</b><span>距上一支</span></div>
-        <div><b id="statAvg">—</b><span>日均 · 近30日</span></div>
-        <div><b id="statGap">—</b><span>最长间隔<span id="gapSleep"></span><span id="gapLive"></span></span></div>
+        <div><b id="statAvg">—</b><span>日均·近30日</span></div>
+        <div><b id="statGap">—</b><span id="gapLabel">最长间隔</span><span id="gapLive"></span></div>
       </div>
       <p class="peak" id="peakLine"></p>
     </section>
@@ -298,7 +304,7 @@ nav svg{width:26px;height:26px;display:block;margin:0 auto 4px;fill:none;stroke:
       <button class="row-btn danger" id="btnClear"><span>清空全部数据</span><span>›</span></button>
       <div class="about">
         <p>数据只保存在这台设备的浏览器里，不会上传到任何服务器。iOS 上 Safari 与 Chrome 等浏览器使用同一内核，一个网页若约七天不曾打开，系统可能清掉它的本地数据；但「添加到主屏幕」后、从图标打开使用，则不受此限制。请务必从主屏幕图标进入「烟迹」，并偶尔导出一份备份。</p>
-        <p class="ver">烟 迹 · 卷 四</p>
+        <p class="ver">烟 迹 · 卷 五</p>
       </div>
     </section>
   </main>
@@ -366,6 +372,7 @@ nav svg{width:26px;height:26px;display:block;margin:0 auto 4px;fill:none;stroke:
 /* ───────── 工具 ───────── */
 const $=s=>document.querySelector(s), $$=s=>document.querySelectorAll(s);
 const DAY=864e5, pad=n=>String(n).padStart(2,'0');
+const CF='"Source Han Serif SC","Noto Serif SC","Songti SC",Georgia,serif';   // 画布字体
 const fmtHM=ts=>{const d=new Date(ts);return pad(d.getHours())+':'+pad(d.getMinutes());};
 const fmtMD=ts=>{const d=new Date(ts);return (d.getMonth()+1)+'月'+d.getDate()+'日';};
 const fmtT=m=>pad(Math.floor(m/60))+':'+pad(m%60);
@@ -447,6 +454,88 @@ function peakHours(bins){let max=0;bins.forEach(v=>{if(v>max)max=v;});
   return{max,idx:bins.reduce((a,v,i)=>{if(v===max)a.push(i);return a;},[])};}
 const fmtHours=list=>list.map(i=>String(i)).join('、')+' 时';
 
+/* ───────── 点火特效（打火 · 余烬 · 末日风） ───────── */
+const FX=(()=>{
+  const cv=document.getElementById('fx');
+  if(!cv)return{fire(){}};
+  const ctx=cv.getContext('2d');
+  const W=300,H=340,dpr=Math.min(3,window.devicePixelRatio||1);
+  cv.width=W*dpr;cv.height=H*dpr;ctx.scale(dpr,dpr);
+  const CX=150, BASE=152, CY=BASE+77;               // BASE＝章顶，CY＝章心
+  const rnd=(a,b)=>a+Math.random()*(b-a);
+  const SC=['#FFE9C9','#FFD9A0','#FFAA33','#FF6B35','#FF5A1E'];
+  let running=false,t0=0,sparks=[],smoke=[];
+  function drawFlame(x,base,h,w,sway,color){
+    const tx=x+sway,ty=base-h;
+    ctx.fillStyle=color;ctx.beginPath();
+    ctx.moveTo(x-w,base);
+    ctx.bezierCurveTo(x-w*1.15,base-h*.35,tx-w*.5,ty+h*.35,tx,ty);
+    ctx.bezierCurveTo(tx+w*.5,ty+h*.35,x+w*1.15,base-h*.35,x+w,base);
+    ctx.quadraticCurveTo(x,base+w*.55,x-w,base);
+    ctx.fill();
+  }
+  function loop(now){
+    const t=(now-t0)/1000, IGN=.12, FULL=.85, DIE=1.35;
+    ctx.clearRect(0,0,W,H);
+    ctx.globalCompositeOperation='lighter';
+    let fh=0;                                        // 火苗高度系数
+    if(t<IGN)fh=t/IGN*.35;
+    else if(t<FULL)fh=.35+(t-IGN)/(FULL-IGN)*.65;
+    else if(t<DIE)fh=1-(t-FULL)/(DIE-FULL);
+    /* 章面炭火红光 */
+    if(t<DIE){
+      const ga=t<IGN?t/IGN*.30:(t<FULL?.30+.10*Math.sin(t*18):.40*(1-(t-FULL)/(DIE-FULL)));
+      const g=ctx.createRadialGradient(CX,CY,10,CX,CY,105);
+      g.addColorStop(0,`rgba(255,110,30,${ga})`);
+      g.addColorStop(.55,`rgba(255,60,10,${ga*.45})`);
+      g.addColorStop(1,'rgba(255,60,10,0)');
+      ctx.fillStyle=g;ctx.beginPath();ctx.arc(CX,CY,105,0,7);ctx.fill();
+    }
+    /* 火苗（三层叠亮） */
+    if(fh>.01){
+      const ht=118*fh,wd=30*fh;
+      const sw=Math.sin(t*11)*wd*.18+Math.sin(t*23+1.7)*wd*.10;
+      const fl=1+Math.sin(t*29)*.06+Math.sin(t*47)*.04;
+      drawFlame(CX,BASE,ht*fl,wd,sw,'rgba(255,70,10,.20)');
+      drawFlame(CX,BASE,ht*.82*fl,wd*.72,sw*.8,'rgba(255,140,40,.45)');
+      drawFlame(CX,BASE,ht*.58*fl,wd*.48,sw*.6,'rgba(255,200,90,.75)');
+      drawFlame(CX,BASE,ht*.34*fl,wd*.28,sw*.4,'rgba(255,240,190,.9)');
+    }
+    /* 火星 */
+    for(let i=sparks.length-1;i>=0;i--){const p=sparks[i];
+      p.x+=p.vx;p.y+=p.vy;p.vy+=.11;p.vx*=.99;p.life-=1/60;
+      if(p.life<=0){sparks.splice(i,1);continue;}
+      ctx.strokeStyle=p.c;ctx.globalAlpha=Math.max(0,Math.min(1,p.life/p.max));
+      ctx.lineWidth=p.w;ctx.beginPath();
+      ctx.moveTo(p.x,p.y);ctx.lineTo(p.x-p.vx*2.2,p.y-p.vy*2.2);ctx.stroke();
+      ctx.globalAlpha=1;}
+    ctx.globalCompositeOperation='source-over';
+    /* 余烟 */
+    for(let i=smoke.length-1;i>=0;i--){const p=smoke[i];
+      p.y-=p.vy;p.x+=Math.sin((p.y+p.seed)*.05)*.5;p.r+=.35;p.life-=1/60;
+      if(p.life<=0){smoke.splice(i,1);continue;}
+      ctx.fillStyle=`rgba(110,100,92,${Math.max(0,.16*p.life/p.max)})`;
+      ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,7);ctx.fill;}
+    if(t<2.6||sparks.length||smoke.length)requestAnimationFrame(loop);
+    else running=false;
+  }
+  function fire(){
+    t0=performance.now();sparks.length=0;smoke.length=0;
+    for(let i=0;i<18;i++){
+      const a=rnd(-Math.PI*.85,-Math.PI*.15),sp=rnd(2.2,6.5);
+      const p={x:CX+rnd(-14,14),y:BASE+rnd(-6,6),vx:Math.cos(a)*sp*rnd(.5,1),
+        vy:Math.sin(a)*sp,life:rnd(.35,.9),w:rnd(1,2.2),
+        c:SC[(Math.random()*SC.length)|0],max:0};
+      p.max=p.life;sparks.push(p);}
+    for(let i=0;i<4;i++){
+      const p={x:CX+rnd(-10,10),y:BASE-rnd(20,60),vy:rnd(.7,1.2),
+        r:rnd(4,9),life:rnd(1.4,2.2),seed:rnd(0,100),max:0};
+      p.max=p.life;smoke.push(p);}
+    if(!running){running=true;requestAnimationFrame(loop);}
+  }
+  return{fire};
+})();
+
 /* ───────── 画布基础 ───────── */
 const C={ink:'#2B2622',ink2:'#57504A',faint:'#7A7063',line:'#DCD3C2',amber:'#A67238'};
 function ctx2d(cv,h){const w=cv.clientWidth||cv.parentElement.clientWidth;
@@ -472,16 +561,16 @@ function _drawHourly(){
   bins.forEach((v,i)=>{if(!v)return;const bh=v/maxV*ih,x=padL+i*bw+(bw-barW)/2;
     c.fillStyle=(P.idx.includes(i)||i===hourlyHi)?C.ink:C.amber;
     rr(c,x,padT+ih-bh,barW,Math.max(2,bh),2);c.fill();});
-  c.font='11.5px Georgia,serif';c.fillStyle=C.faint;c.textAlign='center';
+  c.font='11.5px '+CF;c.fillStyle=C.faint;c.textAlign='center';
   [0,6,12,18].forEach(t=>c.fillText(t+'时',padL+t*bw+bw/2,h-8));
-  c.font='13px Georgia,serif';
+  c.font='13px '+CF;
   if(hourlyHi>=0&&bins[hourlyHi]>0){c.fillStyle=C.ink;
     c.fillText(`${hourlyHi} 时 · ${bins[hourlyHi]} 支`,Math.min(w-52,Math.max(52,padL+hourlyHi*bw+bw/2)),15);}
   else if(P.max>0){c.fillStyle=C.ink2;
     const lb=P.idx.length<=3?`峰值 ${fmtHours(P.idx)} · 每段 ${P.max} 支`
       :`峰值 ${P.idx.length} 个时段 · 每段 ${P.max} 支`;
     c.fillText(lb,w/2,15);}
-  if(bins.every(v=>!v)){c.fillStyle=C.faint;c.font='13px Georgia,serif';c.fillText('暂无记录',w/2,padT+ih/2);}
+  if(bins.every(v=>!v)){c.fillStyle=C.faint;c.font='13px '+CF;c.fillText('暂无记录',w/2,padT+ih/2);}
 }
 
 /* ───────── 图表二：星期 × 时辰热力 ───────── */
@@ -495,7 +584,7 @@ function _drawHeatmap(){
   for(const e of events){if(e.t<s)continue;const d=new Date(e.t);grid[(d.getDay()+6)%7][d.getHours()]++;}
   hmGrid=grid;
   let max=0;grid.forEach(r=>r.forEach(v=>{if(v>max)max=v;}));
-  c.font='11.5px Georgia,serif';c.fillStyle=C.faint;
+  c.font='11.5px '+CF;c.fillStyle=C.faint;
   c.textAlign='right';
   '一二三四五六日'.split('').forEach((t,i)=>c.fillText(t,padL-8,padT+i*ch+ch/2+4));
   c.textAlign='center';
@@ -546,7 +635,7 @@ function _drawTrend(){
   const padL=12,padR=12,padT=28,padB=22,iw=w-padL-padR,ih=h-padT-padB;
   trendGeom={padL,iw};
   const data=trendData;
-  if(!data.length){c.fillStyle=C.faint;c.font='13px Georgia,serif';c.textAlign='center';
+  if(!data.length){c.fillStyle=C.faint;c.font='13px '+CF;c.textAlign='center';
     c.fillText('暂无数据',w/2,padT+ih/2);return;}
   const n=data.length;
   const maxV=Math.max(1,...data.map(p=>p.c));
@@ -556,7 +645,7 @@ function _drawTrend(){
   c.strokeStyle=C.line;c.lineWidth=1;c.setLineDash([2,4]);
   [yMax/2,yMax].forEach(v=>{c.beginPath();c.moveTo(padL,Y(v)+.5);c.lineTo(w-padR,Y(v)+.5);c.stroke();});
   c.setLineDash([]);
-  c.fillStyle=C.faint;c.font='11.5px Georgia,serif';c.textAlign='left';
+  c.fillStyle=C.faint;c.font='11.5px '+CF;c.textAlign='left';
   c.fillText(String(yMax),4,padT-11);
   const lbl=d=>{const x=new Date(d);return (x.getMonth()+1)+'/'+x.getDate();};
   c.textAlign='center';
@@ -564,9 +653,9 @@ function _drawTrend(){
     const p=data[0],x=X(0),y=Y(p.c),d=new Date(p.day);
     c.fillStyle=C.amber;c.beginPath();c.arc(x,y,5,0,7);c.fill();
     c.fillStyle=C.ink;c.beginPath();c.arc(x,y,2.6,0,7);c.fill();
-    c.fillStyle=C.ink2;c.font='13px Georgia,serif';
+    c.fillStyle=C.ink2;c.font='13px '+CF;
     c.fillText(`${d.getMonth()+1}月${d.getDate()}日 · ${p.c} 支`,w/2,15);
-    c.fillStyle=C.faint;c.font='11.5px Georgia,serif';
+    c.fillStyle=C.faint;c.font='11.5px '+CF;
     c.fillText(lbl(p.day),w/2,h-6);
     return;
   }
@@ -574,13 +663,13 @@ function _drawTrend(){
   drawSmooth(c,data.map((p,i)=>({x:X(i),y:Y(p.c)})));c.stroke();
   c.strokeStyle=C.ink;c.lineWidth=1.8;c.beginPath();
   drawSmooth(c,data.map((p,i)=>({x:X(i),y:Y(p.m)})));c.stroke();
-  c.fillStyle=C.faint;c.font='11.5px Georgia,serif';
+  c.fillStyle=C.faint;c.font='11.5px '+CF;
   c.fillText(lbl(data[0].day),padL+14,h-6);
   c.fillText(lbl(data[n-1].day),w-padR-14,h-6);
   if(n>24)c.fillText(lbl(data[Math.floor(n/2)].day),w/2,h-6);
   if(trendHi>=0&&trendHi<n){const p=data[trendHi];
     c.fillStyle=C.amber;c.beginPath();c.arc(X(trendHi),Y(p.c),3.5,0,7);c.fill();
-    const d=new Date(p.day);c.fillStyle=C.ink2;c.font='13px Georgia,serif';
+    const d=new Date(p.day);c.fillStyle=C.ink2;c.font='13px '+CF;
     c.fillText(`${d.getMonth()+1}月${d.getDate()}日 · ${p.c} 支`,Math.min(w-56,Math.max(56,X(trendHi))),15);}
 }
 
@@ -598,7 +687,7 @@ function drawWeek(){
   for(let i=0;i<7;i++){
     const bh=avg[i]/maxA*ih,x=padL+i*bw+(bw-barW)/2,y=padT+ih-bh;
     if(avg[i]>0){c.fillStyle=i>=5?C.ink:C.amber;rr(c,x,y,barW,Math.max(2,bh),2);c.fill();}
-    c.font='11.5px Georgia,serif';c.textAlign='center';
+    c.font='11.5px '+CF;c.textAlign='center';
     if(days[i]){c.fillStyle=C.ink2;c.fillText(avg[i].toFixed(1),padL+i*bw+bw/2,y-7);}
     c.fillStyle=C.faint;c.fillText('一二三四五六日'[i],padL+i*bw+bw/2,h-8);}
   const dw=days.slice(0,5).reduce((a,b)=>a+b,0),de=days.slice(5).reduce((a,b)=>a+b,0);
@@ -785,9 +874,9 @@ function renderToday(){
   const sp=spanDays(null);
   $('#statAvg').textContent=(events.length&&sp>0)?(c30/Math.min(30,sp)).toFixed(1)+' 支':'—';
   const g=longestGap(now);
-  $('#statGap').textContent=fmtDur(g.ms);
+  $('#statGap').textContent=events.length?fmtDur(g.ms):'—';
+  $('#gapLabel').textContent=(prefs.sleep&&prefs.sleep.on)?'最长清醒间隔':'最长间隔';
   $('#gapLive').textContent=g.live?'（进行中）':'';
-  $('#gapSleep').textContent=(prefs.sleep&&prefs.sleep.on)?' · 不含睡眠':'';
   $('#statGap').classList.toggle('live',g.live);
   const bins=hourlyBins(30),P=peakHours(bins);
   $('#peakLine').textContent=!events.length?'按下圆章，记下第一支烟':
@@ -971,7 +1060,10 @@ function bindUI(){
   $('#tabs').addEventListener('click',e=>{const b=e.target.closest('button[data-page]');if(b)showPage(b.dataset.page);});
   $('#stampBtn').addEventListener('click',async()=>{
     const ev=await addEvent(Date.now());
-    renderToday();puff();pop();showUndo(ev);});
+    renderToday();pop();puff();FX.fire();
+    const sm=$('#stampSmoke');sm.classList.add('hot');
+    setTimeout(()=>sm.classList.remove('hot'),1300);
+    showUndo(ev);});
   $('#undoBtn').addEventListener('click',async()=>{
     if(!lastEv)return;
     await DB.delEvent(lastEv.id);
