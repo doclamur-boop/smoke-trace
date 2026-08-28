@@ -20,51 +20,51 @@
 input{-webkit-user-select:auto;user-select:auto}
 html{height:100%}
 body{min-height:100%;background:var(--paper);color:var(--ink);font-family:var(--serif);touch-action:manipulation}
-#app{max-width:480px;margin:0 auto}
-main{padding:calc(env(safe-area-inset-top) + 14px) 20px calc(96px + env(safe-area-inset-bottom))}
+#app{max-width:520px;margin:0 auto}
+main{padding:calc(env(safe-area-inset-top) + 16px) 22px calc(104px + env(safe-area-inset-bottom))}
 .page{display:none}
 .page.active{display:block;animation:pageIn .28s ease}
 @keyframes pageIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
 
 /* ── 添加到主屏幕提示 ── */
 .a2hs{display:none;align-items:flex-start;gap:10px;background:var(--amberD);color:#F5EFE2;
-  font-size:12px;line-height:1.6;padding:10px 14px}
-.a2hs button{background:none;border:0;color:inherit;font-size:16px;font-family:inherit;padding:0 2px;margin-left:auto}
+  font-size:14px;line-height:1.6;padding:12px 16px}
+.a2hs button{background:none;border:0;color:inherit;font-size:18px;font-family:inherit;padding:0 2px;margin-left:auto}
 
 /* ── 页头 ── */
-.pg-head{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:4px}
-.brand{font-size:15px;letter-spacing:.5em;color:var(--ink2);font-weight:700}
+.pg-head{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:6px}
+.brand{font-size:18px;letter-spacing:.5em;color:var(--ink2);font-weight:700}
 .today-head{align-items:flex-end;margin-bottom:0}
-.brand-big{font-size:32px;font-weight:700;letter-spacing:.3em;line-height:1.1;position:relative;display:inline-block}
-.brand-big .curl{position:absolute;right:-16px;top:-11px;width:14px;height:26px;fill:none;
-  stroke:var(--amber);stroke-width:1.6;stroke-linecap:round;animation:sway 3.4s ease-in-out infinite}
+.brand-big{font-size:42px;font-weight:700;letter-spacing:.25em;line-height:1.1;position:relative;display:inline-block}
+.brand-big .curl{position:absolute;right:-22px;top:-15px;width:18px;height:34px;fill:none;
+  stroke:var(--amber);stroke-width:1.7;stroke-linecap:round;animation:sway 3.4s ease-in-out infinite}
 @keyframes sway{50%{transform:translateY(-2px)}}
-.head-date{font-size:12px;color:var(--faint);letter-spacing:.12em}
+.head-date{font-size:14px;color:var(--faint);letter-spacing:.12em}
 
 /* ── 今日页 ── */
-.today-hero{text-align:center;margin-top:14px}
-.big{font-size:64px;font-weight:700;line-height:1}
-.big .unit{font-size:14px;color:var(--faint);margin-left:8px;font-weight:400}
+.today-hero{text-align:center;margin-top:20px}
+.big{font-size:88px;font-weight:700;line-height:1}
+.big .unit{font-size:17px;color:var(--faint);margin-left:10px;font-weight:400}
 #todayNum{display:inline-block}
 #todayNum.pop{animation:pop .35s ease}
 @keyframes pop{0%{transform:scale(1)}35%{transform:scale(1.14)}100%{transform:scale(1)}}
 #todayNum.over{color:var(--alert)}
-.sub{margin-top:8px;font-size:12px;color:var(--faint);letter-spacing:.3em}
+.sub{margin-top:10px;font-size:14px;color:var(--faint);letter-spacing:.3em}
 .sub.warn{color:var(--alert)}
-#limitWrap{margin-top:12px}
-#limitBar{height:2px;background:var(--line);width:180px;margin:0 auto;position:relative}
+#limitWrap{margin-top:14px}
+#limitBar{height:2px;background:var(--line);width:210px;margin:0 auto;position:relative}
 #limitBar i{position:absolute;left:0;top:0;bottom:0;background:var(--amber);transition:width .3s;width:0}
 #limitBar.over i{background:var(--alert)}
-.limit-mini{margin-top:10px;background:none;border:1px dashed var(--line);border-radius:14px;
-  padding:5px 12px;font-family:inherit;font-size:11px;color:var(--faint);letter-spacing:.08em}
+.limit-mini{margin-top:12px;background:none;border:1px dashed var(--line);border-radius:18px;
+  padding:7px 16px;font-family:inherit;font-size:13px;color:var(--faint);letter-spacing:.08em}
 .limit-mini:active{color:var(--ink2)}
 
-.stamp-wrap{display:flex;flex-direction:column;align-items:center;margin-top:26px;position:relative}
-.stamp{width:122px;height:122px;border-radius:50%;background:var(--ink);border:0;position:relative;
+.stamp-wrap{display:flex;flex-direction:column;align-items:center;margin-top:32px;position:relative}
+.stamp{width:154px;height:154px;border-radius:50%;background:var(--ink);border:0;position:relative;
   display:flex;align-items:center;justify-content:center;cursor:pointer;transition:transform .15s ease}
 .stamp:active{transform:scale(.95)}
-.stamp::after{content:"";position:absolute;inset:-9px;border:1px solid rgba(43,38,34,.3);border-radius:50%;pointer-events:none}
-.stamp svg{width:50px;height:80px;overflow:visible}
+.stamp::after{content:"";position:absolute;inset:-11px;border:1px solid rgba(43,38,34,.3);border-radius:50%;pointer-events:none}
+.stamp svg{width:63px;height:100px;overflow:visible}
 .smoke path{fill:none;stroke:var(--paper);stroke-width:2;stroke-linecap:round}
 .smoke .base{opacity:.5}
 .smoke .rise{stroke-dasharray:90;stroke-dashoffset:90;opacity:0}
@@ -72,131 +72,131 @@ main{padding:calc(env(safe-area-inset-top) + 14px) 20px calc(96px + env(safe-are
 .smoke.go .r2{animation-delay:.13s}
 @keyframes rise{0%{stroke-dashoffset:90;opacity:.85;transform:translateY(6px)}
   70%{opacity:.3}100%{stroke-dashoffset:0;opacity:0;transform:translateY(-12px)}}
-.undo{position:absolute;top:calc(100% + 12px);display:flex;align-items:center;gap:8px;white-space:nowrap;
-  background:var(--paper2);border:1px solid var(--line);border-radius:20px;padding:7px 8px 7px 16px;
-  font-size:12px;color:var(--ink2);opacity:0;transform:translateY(6px);transition:.3s;pointer-events:none;z-index:5}
+.undo{position:absolute;top:calc(100% + 14px);display:flex;align-items:center;gap:8px;white-space:nowrap;
+  background:var(--paper2);border:1px solid var(--line);border-radius:22px;padding:8px 10px 8px 18px;
+  font-size:14px;color:var(--ink2);opacity:0;transform:translateY(6px);transition:.3s;pointer-events:none;z-index:5}
 .undo.show{opacity:1;transform:none;pointer-events:auto}
-.undo button{background:none;border:0;color:var(--amberD);font-weight:700;font-family:inherit;font-size:13px;padding:2px 8px}
+.undo button{background:none;border:0;color:var(--amberD);font-weight:700;font-family:inherit;font-size:15px;padding:2px 8px}
 
 .stats3{display:grid;grid-template-columns:1fr 1fr 1fr;border-top:1px solid var(--line);
-  border-bottom:1px solid var(--line);margin-top:34px}
-.stats3>div{padding:12px 4px;text-align:center}
+  border-bottom:1px solid var(--line);margin-top:40px}
+.stats3>div{padding:15px 4px;text-align:center}
 .stats3>div+div{border-left:1px solid var(--line)}
-.stats3 b{display:block;font-size:15px;font-weight:700;margin-bottom:5px}
+.stats3 b{display:block;font-size:19px;font-weight:700;margin-bottom:6px}
 .stats3 b.live{color:var(--amberD)}
-.stats3 span{font-size:11px;color:var(--faint);letter-spacing:.05em}
-.peak{margin-top:16px;text-align:center;font-size:13px;color:var(--ink2)}
+.stats3 span{font-size:12px;color:var(--faint);letter-spacing:.02em}
+.peak{margin-top:18px;text-align:center;font-size:15px;color:var(--ink2)}
 .peak::before{content:"·";color:var(--amber);margin-right:8px}
 
 /* ── 行按钮 ── */
 .row-btn{display:flex;justify-content:space-between;align-items:center;width:100%;background:none;border:0;
-  border-bottom:1px solid var(--line);padding:15px 2px;font-family:inherit;font-size:15px;color:var(--ink);text-align:left}
-.row-btn>span:last-child{color:var(--faint);font-size:13px}
+  border-bottom:1px solid var(--line);padding:17px 2px;font-family:inherit;font-size:17px;color:var(--ink);text-align:left}
+.row-btn>span:last-child{color:var(--faint);font-size:15px}
 .row-btn:active{background:rgba(43,38,34,.04)}
 .row-btn.danger{color:var(--alert)}
-.chev{font-size:16px}
+.chev{font-size:18px}
 
 /* ── 分析页 ── */
-.seg{display:flex;border:1px solid var(--line);border-radius:6px;overflow:hidden}
-.seg button{flex:1;background:none;border:0;border-left:1px solid var(--line);padding:7px 0;
-  font-family:inherit;font-size:12px;color:var(--faint)}
+.seg{display:flex;border:1px solid var(--line);border-radius:7px;overflow:hidden}
+.seg button{flex:1;background:none;border:0;border-left:1px solid var(--line);padding:8px 0;
+  font-family:inherit;font-size:13px;color:var(--faint)}
 .seg button:first-child{border-left:0}
 .seg button.on{background:var(--ink);color:var(--paper)}
-.ov{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--line);border:1px solid var(--line);margin-top:16px}
-.ov>div{background:var(--paper);padding:13px 16px}
-.ov b{display:block;font-size:22px;font-weight:700}
-.ov b#ovTop,.ov b#ovMin{font-size:15px;padding-top:5px}
-.ov span{font-size:11px;color:var(--faint);letter-spacing:.1em}
-.ov .wide{grid-column:1/-1;display:flex;align-items:baseline;justify-content:center;gap:10px;padding:12px 16px}
-.ov .wide b{font-size:16px;padding:0}
-.ov .wide span{font-size:11px}
+.ov{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--line);border:1px solid var(--line);margin-top:18px}
+.ov>div{background:var(--paper);padding:15px 18px}
+.ov b{display:block;font-size:26px;font-weight:700}
+.ov b#ovTop,.ov b#ovMin{font-size:17px;padding-top:6px}
+.ov span{font-size:13px;color:var(--faint);letter-spacing:.08em}
+.ov .wide{grid-column:1/-1;display:flex;align-items:baseline;justify-content:center;gap:10px;padding:13px 16px}
+.ov .wide b{font-size:18px;padding:0}
+.ov .wide span{font-size:13px}
 #ovCmp.up{color:var(--alert)}
 #ovCmp.down{color:var(--olive)}
-.sec{margin-top:32px}
-.sec-h{display:flex;align-items:baseline;gap:10px;border-bottom:1px solid var(--ink);padding-bottom:8px;margin-bottom:12px}
-.sec-h .no{font-size:12px;color:var(--amber)}
-.sec-h h3{font-size:15px;font-weight:700;letter-spacing:.05em}
-.sec-h .tail{margin-left:auto;font-size:10px;color:var(--faint)}
-.note{margin-top:10px;font-size:12px;color:var(--faint);line-height:1.7}
-.read{font-size:12px;color:var(--ink2);min-height:18px;margin-bottom:6px}
+.sec{margin-top:36px}
+.sec-h{display:flex;align-items:baseline;gap:10px;border-bottom:1px solid var(--ink);padding-bottom:9px;margin-bottom:14px}
+.sec-h .no{font-size:14px;color:var(--amber)}
+.sec-h h3{font-size:17px;font-weight:700;letter-spacing:.05em}
+.sec-h .tail{margin-left:auto;font-size:12px;color:var(--faint)}
+.note{margin-top:10px;font-size:14px;color:var(--faint);line-height:1.7}
+.read{font-size:14px;color:var(--ink2);min-height:20px;margin-bottom:6px}
 canvas{width:100%;display:block;touch-action:none}
 
 /* ── 历史页 ── */
-.ghost-btn{background:none;border:1px solid var(--line);border-radius:6px;padding:8px 16px;
-  font-family:inherit;font-size:13px;color:var(--ink2)}
-.ghost-btn.wide{display:block;width:100%;margin-top:26px;padding:12px}
-.hist-day{margin-top:22px}
-.hist-day header{display:flex;align-items:baseline;gap:8px;padding-bottom:6px;border-bottom:1px solid var(--line)}
-.hist-day header .d{font-weight:700;font-size:14px}
-.hist-day .wd{font-size:12px;color:var(--faint)}
-.hist-day .cnt{margin-left:auto;font-size:12px;color:var(--amber)}
-.hist-row{display:flex;align-items:center;padding:9px 2px;border-bottom:1px dashed var(--line)}
-.hist-row .t{font-size:15px;letter-spacing:.06em}
-.hist-row .del{margin-left:auto;background:none;border:0;color:var(--faint);font-size:17px;
-  padding:2px 10px;font-family:inherit}
+.ghost-btn{background:none;border:1px solid var(--line);border-radius:7px;padding:10px 18px;
+  font-family:inherit;font-size:15px;color:var(--ink2)}
+.ghost-btn.wide{display:block;width:100%;margin-top:26px;padding:14px}
+.hist-day{margin-top:24px}
+.hist-day header{display:flex;align-items:baseline;gap:8px;padding-bottom:7px;border-bottom:1px solid var(--line)}
+.hist-day header .d{font-weight:700;font-size:16px}
+.hist-day .wd{font-size:14px;color:var(--faint)}
+.hist-day .cnt{margin-left:auto;font-size:14px;color:var(--amber)}
+.hist-row{display:flex;align-items:center;padding:11px 2px;border-bottom:1px dashed var(--line)}
+.hist-row .t{font-size:18px;letter-spacing:.06em}
+.hist-row .del{margin-left:auto;background:none;border:0;color:var(--faint);font-size:20px;
+  padding:2px 12px;font-family:inherit}
 .hist-row .del:active{color:var(--alert)}
-.empty{margin-top:44px;text-align:center;color:var(--faint);font-size:13px}
+.empty{margin-top:44px;text-align:center;color:var(--faint);font-size:15px}
 
 /* ── 设置页 ── */
-.sec-t{margin:28px 0 2px;font-size:11px;color:var(--faint);letter-spacing:.25em}
+.sec-t{margin:30px 0 2px;font-size:13px;color:var(--faint);letter-spacing:.25em}
 .sec-t span{letter-spacing:.05em}
-.about{margin-top:28px;padding-top:18px;border-top:1px solid var(--line);font-size:12px;color:var(--faint);line-height:1.9}
-.ver{margin-top:16px;letter-spacing:.25em;text-align:center}
+.about{margin-top:30px;padding-top:20px;border-top:1px solid var(--line);font-size:14px;color:var(--faint);line-height:1.9}
+.ver{margin-top:18px;letter-spacing:.25em;text-align:center}
 
 /* ── 底部导航 ── */
-nav{position:fixed;bottom:0;left:0;right:0;max-width:480px;margin:0 auto;display:flex;z-index:20;
+nav{position:fixed;bottom:0;left:0;right:0;max-width:520px;margin:0 auto;display:flex;z-index:20;
   background:rgba(245,240,230,.92);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);
   border-top:1px solid var(--line);border-left:1px solid var(--line);border-right:1px solid var(--line);
   padding-bottom:env(safe-area-inset-bottom)}
-nav button{flex:1;background:none;border:0;padding:9px 0 7px;color:var(--faint);
-  font-family:inherit;font-size:10px;letter-spacing:.2em}
+nav button{flex:1;background:none;border:0;padding:10px 0 8px;color:var(--faint);
+  font-family:inherit;font-size:12px;letter-spacing:.2em}
 nav button.active{color:var(--ink)}
-nav svg{width:22px;height:22px;display:block;margin:0 auto 4px;fill:none;stroke:currentColor;
+nav svg{width:26px;height:26px;display:block;margin:0 auto 4px;fill:none;stroke:currentColor;
   stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
 
 /* ── 弹层 ── */
 .mask{position:fixed;inset:0;background:rgba(43,38,34,.4);z-index:40;opacity:0;pointer-events:none;transition:opacity .25s}
 .mask.show{opacity:1;pointer-events:auto}
-.sheet{position:fixed;left:0;right:0;bottom:0;max-width:480px;margin:0 auto;background:var(--paper);z-index:41;
-  border-top:1px solid var(--line);border-radius:14px 14px 0 0;padding-bottom:env(safe-area-inset-bottom);
+.sheet{position:fixed;left:0;right:0;bottom:0;max-width:520px;margin:0 auto;background:var(--paper);z-index:41;
+  border-top:1px solid var(--line);border-radius:16px 16px 0 0;padding-bottom:env(safe-area-inset-bottom);
   transform:translateY(105%);transition:transform .3s cubic-bezier(.32,.72,.28,1)}
 .sheet.show{transform:none}
-.sheet header{display:flex;align-items:center;justify-content:space-between;padding:16px 18px 6px}
-.sheet h4{font-size:16px;font-weight:700;letter-spacing:.05em}
-.sheet .x{background:none;border:0;color:var(--faint);font-size:14px;font-family:inherit}
-.sheet .primary{display:block;width:calc(100% - 36px);margin:14px auto 18px;background:var(--ink);color:var(--paper);
-  border:0;border-radius:8px;padding:13px;font-family:inherit;font-size:15px;letter-spacing:.15em}
+.sheet header{display:flex;align-items:center;justify-content:space-between;padding:18px 20px 8px}
+.sheet h4{font-size:19px;font-weight:700;letter-spacing:.05em}
+.sheet .x{background:none;border:0;color:var(--faint);font-size:16px;font-family:inherit}
+.sheet .primary{display:block;width:calc(100% - 40px);margin:16px auto 20px;background:var(--ink);color:var(--paper);
+  border:0;border-radius:9px;padding:15px;font-family:inherit;font-size:17px;letter-spacing:.15em}
 .sheet .primary.danger{background:var(--alert)}
-.sheet .ghost{display:block;width:calc(100% - 36px);margin:0 auto 14px;background:none;color:var(--ink2);
-  border:1px solid var(--line);border-radius:8px;padding:12px;font-family:inherit;font-size:14px;letter-spacing:.1em}
-.sheet input[type=datetime-local]{display:block;width:calc(100% - 36px);margin:14px auto 0;padding:12px;
-  border:1px solid var(--line);border-radius:8px;background:#fff;color:var(--ink);font-family:inherit;font-size:15px}
-.cf-body{padding:2px 18px 4px;font-size:13px;color:var(--ink2);line-height:1.7}
-.cf-btns{display:flex;gap:10px;padding:16px 18px 20px}
+.sheet .ghost{display:block;width:calc(100% - 40px);margin:0 auto 16px;background:none;color:var(--ink2);
+  border:1px solid var(--line);border-radius:9px;padding:14px;font-family:inherit;font-size:16px;letter-spacing:.1em}
+.sheet input[type=datetime-local]{display:block;width:calc(100% - 40px);margin:16px auto 0;padding:14px;
+  border:1px solid var(--line);border-radius:9px;background:#fff;color:var(--ink);font-family:inherit;font-size:17px}
+.cf-body{padding:2px 20px 4px;font-size:15px;color:var(--ink2);line-height:1.7}
+.cf-btns{display:flex;gap:10px;padding:18px 20px 22px}
 .cf-btns button{flex:1;margin:0}
 .cf-btns .primary{margin-bottom:0}
-.sheet-note{padding:2px 22px 0;font-size:12px;color:var(--faint);line-height:1.7}
+.sheet-note{padding:2px 24px 0;font-size:14px;color:var(--faint);line-height:1.7}
 
 /* ── 滚轮 ── */
-.wheel{position:relative;height:252px;overflow:hidden;touch-action:none;margin:4px 0 2px}
-.wheel.small{height:216px}
+.wheel{position:relative;height:290px;overflow:hidden;touch-action:none;margin:4px 0 2px}
+.wheel.small{height:250px}
 .wheel-items{position:absolute;left:0;right:0;top:0;will-change:transform}
-.wheel-item{position:absolute;left:0;right:0;height:44px;display:flex;align-items:center;justify-content:center;
-  font-size:21px;color:var(--ink);will-change:transform,opacity}
-.wheel.small .wheel-item{font-size:18px}
-.wheel-item.special{color:var(--faint);font-size:15px;letter-spacing:.3em}
-.wheel-hl{position:absolute;left:22px;right:22px;top:50%;height:44px;transform:translateY(-50%);
+.wheel-item{position:absolute;left:0;right:0;height:50px;display:flex;align-items:center;justify-content:center;
+  font-size:24px;color:var(--ink);will-change:transform,opacity}
+.wheel.small .wheel-item{font-size:21px}
+.wheel-item.special{color:var(--faint);font-size:17px;letter-spacing:.3em}
+.wheel-hl{position:absolute;left:24px;right:24px;top:50%;height:50px;transform:translateY(-50%);
   border-top:1px solid var(--line);border-bottom:1px solid var(--line);pointer-events:none;z-index:3}
-.wheel::before,.wheel::after{content:"";position:absolute;left:0;right:0;height:86px;z-index:2;pointer-events:none}
+.wheel::before,.wheel::after{content:"";position:absolute;left:0;right:0;height:100px;z-index:2;pointer-events:none}
 .wheel::before{top:0;background:linear-gradient(to bottom,var(--paper) 10%,rgba(245,240,230,0))}
 .wheel::after{bottom:0;background:linear-gradient(to top,var(--paper) 10%,rgba(245,240,230,0))}
-.wheel-cap{display:flex;padding:8px 22px 0;font-size:11px;color:var(--faint);letter-spacing:.3em}
+.wheel-cap{display:flex;padding:10px 24px 0;font-size:13px;color:var(--faint);letter-spacing:.3em}
 .wheel-cap span{flex:1;text-align:center}
 .wheel-pair{display:flex}
 .wheel-pair .wheel{flex:1}
 
-#toast{position:fixed;left:50%;bottom:calc(96px + env(safe-area-inset-bottom));transform:translate(-50%,8px);
-  background:var(--ink);color:var(--paper);font-size:13px;padding:9px 18px;border-radius:20px;
+#toast{position:fixed;left:50%;bottom:calc(104px + env(safe-area-inset-bottom));transform:translate(-50%,8px);
+  background:var(--ink);color:var(--paper);font-size:15px;padding:11px 20px;border-radius:22px;
   opacity:0;pointer-events:none;transition:.3s;z-index:60;letter-spacing:.05em;max-width:80%}
 #toast.show{opacity:1;transform:translate(-50%,0)}
 </style>
@@ -298,7 +298,7 @@ nav svg{width:22px;height:22px;display:block;margin:0 auto 4px;fill:none;stroke:
       <button class="row-btn danger" id="btnClear"><span>清空全部数据</span><span>›</span></button>
       <div class="about">
         <p>数据只保存在这台设备的浏览器里，不会上传到任何服务器。iOS 上 Safari 与 Chrome 等浏览器使用同一内核，一个网页若约七天不曾打开，系统可能清掉它的本地数据；但「添加到主屏幕」后、从图标打开使用，则不受此限制。请务必从主屏幕图标进入「烟迹」，并偶尔导出一份备份。</p>
-        <p class="ver">烟 迹 · 卷 二</p>
+        <p class="ver">烟 迹 · 卷 四</p>
       </div>
     </section>
   </main>
@@ -463,41 +463,41 @@ function heatColor(t){t=Math.sqrt(Math.min(1,t));
 let hourlyHi=-1,hourlyGeom=null;
 function _drawHourly(){
   const bins=hourlyBins(statsRange),P=peakHours(bins);
-  const cv=$('#cvHourly'),{c,w,h}=ctx2d(cv,190);
-  const padL=6,padR=6,padT=26,padB=22,iw=w-padL-padR,ih=h-padT-padB;
-  const bw=iw/24,barW=Math.min(14,bw*.52),maxV=Math.max(...bins,1);
+  const cv=$('#cvHourly'),{c,w,h}=ctx2d(cv,212);
+  const padL=6,padR=6,padT=28,padB=24,iw=w-padL-padR,ih=h-padT-padB;
+  const bw=iw/24,barW=Math.min(15,bw*.52),maxV=Math.max(...bins,1);
   hourlyGeom={padL,bw};
   c.strokeStyle=C.line;c.lineWidth=1;
   c.beginPath();c.moveTo(padL,padT+ih+.5);c.lineTo(w-padR,padT+ih+.5);c.stroke();
   bins.forEach((v,i)=>{if(!v)return;const bh=v/maxV*ih,x=padL+i*bw+(bw-barW)/2;
     c.fillStyle=(P.idx.includes(i)||i===hourlyHi)?C.ink:C.amber;
     rr(c,x,padT+ih-bh,barW,Math.max(2,bh),2);c.fill();});
-  c.font='10px Georgia,serif';c.fillStyle=C.faint;c.textAlign='center';
+  c.font='11.5px Georgia,serif';c.fillStyle=C.faint;c.textAlign='center';
   [0,6,12,18].forEach(t=>c.fillText(t+'时',padL+t*bw+bw/2,h-8));
-  c.font='11px Georgia,serif';
+  c.font='13px Georgia,serif';
   if(hourlyHi>=0&&bins[hourlyHi]>0){c.fillStyle=C.ink;
-    c.fillText(`${hourlyHi} 时 · ${bins[hourlyHi]} 支`,Math.min(w-46,Math.max(46,padL+hourlyHi*bw+bw/2)),14);}
+    c.fillText(`${hourlyHi} 时 · ${bins[hourlyHi]} 支`,Math.min(w-52,Math.max(52,padL+hourlyHi*bw+bw/2)),15);}
   else if(P.max>0){c.fillStyle=C.ink2;
     const lb=P.idx.length<=3?`峰值 ${fmtHours(P.idx)} · 每段 ${P.max} 支`
       :`峰值 ${P.idx.length} 个时段 · 每段 ${P.max} 支`;
-    c.fillText(lb,w/2,14);}
-  if(bins.every(v=>!v)){c.fillStyle=C.faint;c.font='12px Georgia,serif';c.fillText('暂无记录',w/2,padT+ih/2);}
+    c.fillText(lb,w/2,15);}
+  if(bins.every(v=>!v)){c.fillStyle=C.faint;c.font='13px Georgia,serif';c.fillText('暂无记录',w/2,padT+ih/2);}
 }
 
 /* ───────── 图表二：星期 × 时辰热力 ───────── */
 let hmHi=null,hmGeom=null,hmGrid=null;
 function _drawHeatmap(){
-  const cv=$('#cvHeat'),{c,w,h}=ctx2d(cv,196);
-  const padL=24,padT=2,padB=18,cw=(w-padL-1)/24,ch=(h-padT-padB)/7;
+  const cv=$('#cvHeat'),{c,w,h}=ctx2d(cv,216);
+  const padL=26,padT=2,padB=20,cw=(w-padL-1)/24,ch=(h-padT-padB)/7;
   hmGeom={padL,padT,cw,ch};
   const s=statsRange===Infinity?0:startOfDay(Date.now())-(statsRange-1)*DAY;
   const grid=Array.from({length:7},()=>new Array(24).fill(0));
   for(const e of events){if(e.t<s)continue;const d=new Date(e.t);grid[(d.getDay()+6)%7][d.getHours()]++;}
   hmGrid=grid;
   let max=0;grid.forEach(r=>r.forEach(v=>{if(v>max)max=v;}));
-  c.font='10px Georgia,serif';c.fillStyle=C.faint;
+  c.font='11.5px Georgia,serif';c.fillStyle=C.faint;
   c.textAlign='right';
-  '一二三四五六日'.split('').forEach((t,i)=>c.fillText(t,padL-7,padT+i*ch+ch/2+3.5));
+  '一二三四五六日'.split('').forEach((t,i)=>c.fillText(t,padL-8,padT+i*ch+ch/2+4));
   c.textAlign='center';
   [0,6,12,18].forEach(t=>c.fillText(t+'时',padL+t*cw+cw/2,h-5));
   for(let r=0;r<7;r++)for(let col=0;col<24;col++){const v=grid[r][col];if(!v)continue;
@@ -510,9 +510,10 @@ function _drawHeatmap(){
 /* ───────── 图表三：走势 ───────── */
 let trendData=[],trendGeom=null,trendHi=-1;
 function buildTrend(){
+  if(!events.length){trendData=[];return;}
   const sod=startOfDay(Date.now());
-  const first=events.length?startOfDay(events[0].t):sod;
-  const n=Math.max(2,Math.min(90,Math.round((sod-first)/DAY)+1));
+  const first=startOfDay(events[0].t);
+  const n=Math.min(90,Math.round((sod-first)/DAY)+1);  // 从首日起算，不补空白天
   const from=sod-(n-1)*DAY;
   const arr=Array.from({length:n},(_,i)=>({day:from+i*DAY,c:0}));
   const idx=new Map();arr.forEach((p,i)=>idx.set(p.day,i));
@@ -520,52 +521,85 @@ function buildTrend(){
   arr.forEach((p,i)=>{let s=0,c=0;for(let j=Math.max(0,i-6);j<=i;j++){s+=arr[j].c;c++;}p.m=s/c;});
   trendData=arr;
 }
+/* 单调平滑曲线：过每个数据点，不在点间上下过冲 */
+function drawSmooth(c,pts){
+  const n=pts.length;
+  if(n<2)return;
+  if(n===2){c.moveTo(pts[0].x,pts[0].y);c.lineTo(pts[1].x,pts[1].y);return;}
+  const dx=[],m=[];
+  for(let i=0;i<n-1;i++){dx.push(pts[i+1].x-pts[i].x);m.push((pts[i+1].y-pts[i].y)/dx[i]);}
+  const t=[m[0]];
+  for(let i=1;i<n-1;i++){
+    if(m[i-1]*m[i]<=0)t.push(0);
+    else{const w1=2*dx[i]+dx[i-1],w2=dx[i]+2*dx[i-1];
+      t.push((w1+w2)/(w1/m[i-1]+w2/m[i]));}
+  }
+  t.push(m[n-2]);
+  c.moveTo(pts[0].x,pts[0].y);
+  for(let i=0;i<n-1;i++){
+    c.bezierCurveTo(pts[i].x+dx[i]/3,pts[i].y+t[i]*dx[i]/3,
+      pts[i+1].x-dx[i]/3,pts[i+1].y-t[i+1]*dx[i]/3,pts[i+1].x,pts[i+1].y);
+  }
+}
 function _drawTrend(){
-  const cv=$('#cvTrend'),{c,w,h}=ctx2d(cv,200);
-  const padL=10,padR=10,padT=26,padB=20,iw=w-padL-padR,ih=h-padT-padB;
+  const cv=$('#cvTrend'),{c,w,h}=ctx2d(cv,224);
+  const padL=12,padR=12,padT=28,padB=22,iw=w-padL-padR,ih=h-padT-padB;
   trendGeom={padL,iw};
   const data=trendData;
-  if(data.length<2){c.fillStyle=C.faint;c.font='12px Georgia,serif';c.textAlign='center';
+  if(!data.length){c.fillStyle=C.faint;c.font='13px Georgia,serif';c.textAlign='center';
     c.fillText('暂无数据',w/2,padT+ih/2);return;}
+  const n=data.length;
   const maxV=Math.max(1,...data.map(p=>p.c));
   const yMax=Math.max(3,Math.ceil(maxV/5)*5);
-  const X=i=>padL+i/(data.length-1)*iw,Y=v=>padT+ih-v/yMax*ih;
+  const X=i=>n===1?padL+iw/2:padL+i/(n-1)*iw;
+  const Y=v=>padT+ih-v/yMax*ih;
   c.strokeStyle=C.line;c.lineWidth=1;c.setLineDash([2,4]);
   [yMax/2,yMax].forEach(v=>{c.beginPath();c.moveTo(padL,Y(v)+.5);c.lineTo(w-padR,Y(v)+.5);c.stroke();});
   c.setLineDash([]);
-  c.strokeStyle='rgba(166,114,56,.42)';c.lineWidth=1;c.beginPath();
-  data.forEach((p,i)=>i?c.lineTo(X(i),Y(p.c)):c.moveTo(X(i),Y(p.c)));c.stroke();
-  c.strokeStyle=C.ink;c.lineWidth=1.8;c.beginPath();
-  data.forEach((p,i)=>i?c.lineTo(X(i),Y(p.m)):c.moveTo(X(i),Y(p.m)));c.stroke();
-  c.fillStyle=C.faint;c.font='10px Georgia,serif';
-  c.textAlign='left';c.fillText(String(yMax),4,padT-10);
+  c.fillStyle=C.faint;c.font='11.5px Georgia,serif';c.textAlign='left';
+  c.fillText(String(yMax),4,padT-11);
   const lbl=d=>{const x=new Date(d);return (x.getMonth()+1)+'/'+x.getDate();};
   c.textAlign='center';
-  c.fillText(lbl(data[0].day),padL+12,h-6);
-  c.fillText(lbl(data[data.length-1].day),w-padR-12,h-6);
-  if(data.length>24)c.fillText(lbl(data[Math.floor(data.length/2)].day),w/2,h-6);
-  if(trendHi>=0&&trendHi<data.length){const p=data[trendHi];
-    c.fillStyle=C.amber;c.beginPath();c.arc(X(trendHi),Y(p.c),3,0,7);c.fill();
-    const d=new Date(p.day);c.fillStyle=C.ink2;c.font='11px Georgia,serif';
-    c.fillText(`${d.getMonth()+1}月${d.getDate()}日 · ${p.c} 支`,Math.min(w-48,Math.max(48,X(trendHi))),14);}
+  if(n===1){                       // 只有首日：一个点，不画斜线
+    const p=data[0],x=X(0),y=Y(p.c),d=new Date(p.day);
+    c.fillStyle=C.amber;c.beginPath();c.arc(x,y,5,0,7);c.fill();
+    c.fillStyle=C.ink;c.beginPath();c.arc(x,y,2.6,0,7);c.fill();
+    c.fillStyle=C.ink2;c.font='13px Georgia,serif';
+    c.fillText(`${d.getMonth()+1}月${d.getDate()}日 · ${p.c} 支`,w/2,15);
+    c.fillStyle=C.faint;c.font='11.5px Georgia,serif';
+    c.fillText(lbl(p.day),w/2,h-6);
+    return;
+  }
+  c.strokeStyle='rgba(166,114,56,.42)';c.lineWidth=1;c.beginPath();
+  drawSmooth(c,data.map((p,i)=>({x:X(i),y:Y(p.c)})));c.stroke();
+  c.strokeStyle=C.ink;c.lineWidth=1.8;c.beginPath();
+  drawSmooth(c,data.map((p,i)=>({x:X(i),y:Y(p.m)})));c.stroke();
+  c.fillStyle=C.faint;c.font='11.5px Georgia,serif';
+  c.fillText(lbl(data[0].day),padL+14,h-6);
+  c.fillText(lbl(data[n-1].day),w-padR-14,h-6);
+  if(n>24)c.fillText(lbl(data[Math.floor(n/2)].day),w/2,h-6);
+  if(trendHi>=0&&trendHi<n){const p=data[trendHi];
+    c.fillStyle=C.amber;c.beginPath();c.arc(X(trendHi),Y(p.c),3.5,0,7);c.fill();
+    const d=new Date(p.day);c.fillStyle=C.ink2;c.font='13px Georgia,serif';
+    c.fillText(`${d.getMonth()+1}月${d.getDate()}日 · ${p.c} 支`,Math.min(w-56,Math.max(56,X(trendHi))),15);}
 }
 
 /* ───────── 图表四：工作日与周末 ───────── */
 function drawWeek(){
-  const cv=$('#cvWeek'),{c,w,h}=ctx2d(cv,168);
+  const cv=$('#cvWeek'),{c,w,h}=ctx2d(cv,188);
   const now=startOfDay(Date.now());
   const s=statsRange===Infinity?(events.length?startOfDay(events[0].t):now):now-(statsRange-1)*DAY;
   const sums=Array(7).fill(0),days=Array(7).fill(0);
   const byDay={};for(const e of events){if(e.t<s)continue;const k=startOfDay(e.t);byDay[k]=(byDay[k]||0)+1;}
   for(let d=s;d<=now;d+=DAY){const i=(new Date(d).getDay()+6)%7;days[i]++;sums[i]+=byDay[d]||0;}
   const avg=sums.map((v,i)=>days[i]?v/days[i]:0);
-  const padL=10,padB=22,padT=16,iw=w-padL-10,ih=h-padT-padB;
-  const bw=iw/7,barW=Math.min(30,bw*.4),maxA=Math.max(...avg,1);
+  const padL=10,padB=24,padT=18,iw=w-padL-10,ih=h-padT-padB;
+  const bw=iw/7,barW=Math.min(32,bw*.4),maxA=Math.max(...avg,1);
   for(let i=0;i<7;i++){
     const bh=avg[i]/maxA*ih,x=padL+i*bw+(bw-barW)/2,y=padT+ih-bh;
     if(avg[i]>0){c.fillStyle=i>=5?C.ink:C.amber;rr(c,x,y,barW,Math.max(2,bh),2);c.fill();}
-    c.font='10px Georgia,serif';c.textAlign='center';
-    if(days[i]){c.fillStyle=C.ink2;c.fillText(avg[i].toFixed(1),padL+i*bw+bw/2,y-6);}
+    c.font='11.5px Georgia,serif';c.textAlign='center';
+    if(days[i]){c.fillStyle=C.ink2;c.fillText(avg[i].toFixed(1),padL+i*bw+bw/2,y-7);}
     c.fillStyle=C.faint;c.fillText('一二三四五六日'[i],padL+i*bw+bw/2,h-8);}
   const dw=days.slice(0,5).reduce((a,b)=>a+b,0),de=days.slice(5).reduce((a,b)=>a+b,0);
   const sw=sums.slice(0,5).reduce((a,b)=>a+b,0),se=sums.slice(5).reduce((a,b)=>a+b,0);
@@ -607,7 +641,7 @@ function bindProbes(){
 /* ───────── 滚轮选择器 ───────── */
 class Wheel{
   constructor(box,labels,specialFirst=true){
-    this.box=box;this.h=44;this.n=labels.length;this.maxOff=(this.n-1)*this.h;
+    this.box=box;this.h=50;this.n=labels.length;this.maxOff=(this.n-1)*this.h;
     this.off=0;this.raf=null;this.vel=0;this._pt=0;
     const items=document.createElement('div');items.className='wheel-items';box.appendChild(items);
     this.items=labels.map((t,i)=>{const d=document.createElement('div');
@@ -785,11 +819,11 @@ function renderStats(){
   for(const e of inR){const k=startOfDay(e.t);dayCnt[k]=(dayCnt[k]||0)+1;}
   let top=null;for(const k in dayCnt)if(!top||dayCnt[k]>top.c)top={k:+k,c:dayCnt[k]};
   $('#ovTop').textContent=top?`${fmtMD(top.k)} · ${top.c} 支`:'—';
-  let minC=null;const f=firstDayStart();
+  let minC=null,minK=null;const f=firstDayStart();
   if(f!==null){const from=R===Infinity?f:Math.max(f,s0);
     for(let dd=from;dd<=sod;dd+=DAY){const cc=dayCnt[dd]||0;
-      if(minC===null||cc<minC)minC=cc;}}
-  $('#ovMin').textContent=minC===null?'—':minC+' 支';
+      if(minC===null||cc<minC){minC=cc;minK=dd;}}}
+  $('#ovMin').textContent=minC===null?'—':`${fmtMD(minK)} · ${minC} 支`;
   const cmp=$('#ovCmp');let ct='—';cmp.classList.remove('up','down');
   if(R!==Infinity){
     let cp=0;const ps=s0-R*DAY;
