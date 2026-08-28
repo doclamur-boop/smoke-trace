@@ -21,10 +21,11 @@
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;
   -webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
 input{-webkit-user-select:auto;user-select:auto}
-html{height:100%}
-body{position:fixed;inset:0;width:100%;height:100%;overflow:hidden;
+body{position:fixed;inset:0;width:100%;overflow:hidden;
   background:var(--paper);color:var(--ink);font-family:var(--serif);touch-action:manipulation}
-#app{position:absolute;inset:0;max-width:520px;margin:0 auto;display:flex;flex-direction:column}
+#app{position:relative;width:100%;max-width:520px;margin:0 auto;
+  height:var(--app-h,100dvh);            /* JS 会把 --app-h 钉在真实窗口高度上 */
+  display:flex;flex-direction:column}
 main{flex:1 1 0;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;
   overscroll-behavior:contain;
   padding:calc(env(safe-area-inset-top) + 16px) 22px 28px}
@@ -42,9 +43,12 @@ main{flex:1 1 0;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;
 .brand{font-size:18px;letter-spacing:.5em;color:var(--ink2);font-weight:700}
 .today-head{align-items:flex-end;margin-bottom:0}
 .brand-big{font-size:42px;font-weight:700;letter-spacing:.25em;line-height:1.1;position:relative;display:inline-block}
-.brand-big .curl{position:absolute;right:-22px;top:-15px;width:18px;height:34px;fill:none;
+.brand-big .curl{position:absolute;right:-24px;top:-14px;width:18px;height:34px;fill:none;
   stroke:var(--amber);stroke-width:1.7;stroke-linecap:round;animation:sway 3.4s ease-in-out infinite}
 @keyframes sway{50%{transform:translateY(-2px)}}
+.brand-big .seal{position:absolute;right:-58px;top:-2px;width:22px;height:22px;
+  border:1px solid var(--amber);border-radius:5px;color:var(--amberD);
+  font-size:13px;line-height:21px;text-align:center;font-weight:400}
 .head-date{font-size:14px;color:var(--faint);letter-spacing:.12em}
 
 /* ── 今日页 ── */
@@ -152,10 +156,9 @@ canvas{width:100%;display:block;touch-action:none}
 .about{margin-top:30px;padding-top:20px;border-top:1px solid var(--line);font-size:14px;color:var(--faint);line-height:1.9}
 .ver{margin-top:18px;letter-spacing:.25em;text-align:center}
 
-/* ── 底部导航（文档流内，壳体的一部分） ── */
+/* ── 底部导航：文档流内、实色底，无合成层位移条件 ── */
 nav{flex:none;display:flex;z-index:20;
-  background:rgba(245,240,230,.94);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);
-  border-top:1px solid var(--line);
+  background:var(--paper);border-top:1px solid var(--line);
   padding-bottom:env(safe-area-inset-bottom)}
 nav button{flex:1;background:none;border:0;padding:10px 0 8px;color:var(--faint);
   font-family:inherit;font-size:12px;letter-spacing:.2em}
@@ -204,7 +207,7 @@ nav svg{width:26px;height:26px;display:block;margin:0 auto 4px;fill:none;stroke:
 .wheel-pair{display:flex}
 .wheel-pair .wheel{flex:1}
 
-#toast{position:fixed;left:50%;bottom:calc(104px + env(safe-area-inset-bottom));transform:translate(-50%,8px);
+#toast{position:fixed;left:50%;bottom:calc(90px + env(safe-area-inset-bottom));transform:translate(-50%,8px);
   background:var(--ink);color:var(--paper);font-size:15px;padding:11px 20px;border-radius:22px;
   opacity:0;pointer-events:none;transition:.3s;z-index:60;letter-spacing:.05em;max-width:80%}
 #toast.show{opacity:1;transform:translate(-50%,0)}
@@ -222,7 +225,7 @@ nav svg{width:26px;height:26px;display:block;margin:0 auto 4px;fill:none;stroke:
     <!-- ═══ 今日 ═══ -->
     <section id="page-today" class="page active">
       <header class="pg-head today-head">
-        <h1 class="brand-big">烟迹<svg class="curl" viewBox="0 0 22 40"><path d="M11 38 C 6 30 15 24 11 14 C 8 7 13 4 11 1"/></svg></h1>
+        <h1 class="brand-big">烟迹<svg class="curl" viewBox="0 0 22 40"><path d="M11 38 C 6 30 15 24 11 14 C 8 7 13 4 11 1"/></svg><span class="seal">十</span></h1>
         <p class="head-date" id="todayDate"></p>
       </header>
       <div class="today-hero">
@@ -308,7 +311,7 @@ nav svg{width:26px;height:26px;display:block;margin:0 auto 4px;fill:none;stroke:
       <button class="row-btn danger" id="btnClear"><span>清空全部数据</span><span>›</span></button>
       <div class="about">
         <p>数据只保存在这台设备的浏览器里，不会上传到任何服务器。iOS 上 Safari 与 Chrome 等浏览器使用同一内核，一个网页若约七天不曾打开，系统可能清掉它的本地数据；但「添加到主屏幕」后、从图标打开使用，则不受此限制。请务必从主屏幕图标进入「烟迹」，并偶尔导出一份备份。</p>
-        <p class="ver">烟 迹 · 卷 九</p>
+        <p class="ver">烟 迹 · 卷 十</p>
       </div>
     </section>
   </main>
@@ -376,7 +379,7 @@ nav svg{width:26px;height:26px;display:block;margin:0 auto 4px;fill:none;stroke:
 /* ───────── 工具 ───────── */
 const $=s=>document.querySelector(s), $$=s=>document.querySelectorAll(s);
 const DAY=864e5, pad=n=>String(n).padStart(2,'0');
-const CF='"Source Han Serif SC","Noto Serif SC","Songti SC",Georgia,serif';   // 画布字体
+const CF='"Source Han Serif SC","Noto Serif SC","Songti SC",Georgia,serif';
 const fmtHM=ts=>{const d=new Date(ts);return pad(d.getHours())+':'+pad(d.getMinutes());};
 const fmtMD=ts=>{const d=new Date(ts);return (d.getMonth()+1)+'月'+d.getDate()+'日';};
 const fmtT=m=>pad(Math.floor(m/60))+':'+pad(m%60);
@@ -392,7 +395,17 @@ function fmtDur(ms){const m=Math.floor(ms/6e4);if(m<1)return '刚刚';
   if(h<48){const mm=m%60;return h+' 小时'+(mm?' '+mm+' 分':'');}
   const d=Math.floor(h/24),hh=h%24;return d+' 天'+(hh?' '+hh+' 小时':'');}
 
-/* 视口归零：清掉任何被 iOS 卡住的滚动偏移 */
+/* 视口：壳高钉在真实窗口尺寸上，不信任 CSS 视口单位 */
+let shellH=0;
+function fitShell(force){
+  const vv=window.visualViewport;
+  const h=Math.round(Math.min(window.innerHeight,vv?vv.height:window.innerHeight));
+  if(!h)return;
+  if(!force&&shellH&&h<shellH)return;   // 键盘弹出等暂时变小：忽略，只认回弹
+  if(h===shellH)return;
+  shellH=h;
+  document.documentElement.style.setProperty('--app-h',h+'px');
+}
 function resetViewport(){
   try{window.scrollTo(0,0);}catch(_){}
   document.documentElement.scrollTop=0;
@@ -439,7 +452,7 @@ function spanDays(rangeStart){const f=firstDayStart();if(f===null)return 0;
 
 /* 睡眠感知的间隔：扣除与睡眠时段的重叠部分 */
 function sleepDur(){const s=prefs.sleep;if(!s||!s.on)return 0;
-  return ((s.end-s.start)%1440+1440)%1440;}          // 分钟
+  return ((s.end-s.start)%1440+1440)%1440;}
 function effGap(a,b){
   const raw=b-a,dur=sleepDur();if(!dur)return raw;
   const s=prefs.sleep,segMs=dur*6e4,startMs=s.start*6e4;
@@ -1115,15 +1128,16 @@ function bindUI(){
   $('#a2hsClose').onclick=()=>{$('#a2hs').style.display='none';localStorage.setItem('st_tip','1');};
   bindProbes();
   document.addEventListener('touchstart',()=>{},{passive:true});
-  let rz=null;
-  window.addEventListener('resize',()=>{clearTimeout(rz);
-    rz=setTimeout(()=>{resetViewport();
-      if(cur==='stats')renderStats();if(cur==='today')renderToday();},200);});
-  window.addEventListener('orientationchange',()=>setTimeout(resetViewport,300));
-  window.addEventListener('pageshow',resetViewport);
+  /* 视口监听：任何尺寸回稳都重钉壳高 */
+  window.addEventListener('resize',()=>{fitShell(true);resetViewport();
+    clearTimeout(fitShell._t);fitShell._t=setTimeout(()=>{if(cur==='stats')renderStats();if(cur==='today')renderToday();},200);});
+  window.addEventListener('orientationchange',()=>{setTimeout(()=>{fitShell(true);resetViewport();},350);});
+  window.addEventListener('pageshow',()=>{fitShell(true);resetViewport();});
+  if(window.visualViewport)window.visualViewport.addEventListener('resize',()=>fitShell(false));
   document.addEventListener('visibilitychange',()=>{if(document.hidden)return;
-    resetViewport();
+    fitShell(true);resetViewport();
     if(cur==='today')renderToday();if(cur==='history')renderHistory(false);});
+  document.addEventListener('focusout',()=>setTimeout(()=>fitShell(false),300));
   setInterval(()=>{if(cur==='today'&&!document.hidden)renderToday();},30000);
 }
 async function init(){
@@ -1131,12 +1145,13 @@ async function init(){
   events=(await DB.getEvents()).sort((a,b)=>a.t-b.t);
   prefs=mergePrefs(await DB.getPref('limit'));
   bindUI();
+  fitShell(true);
   const isIOS=/iP(hone|od|ad)/.test(navigator.userAgent)
     ||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
   if(isIOS&&!navigator.standalone&&!localStorage.getItem('st_tip'))
     $('#a2hs').style.display='flex';
   showPage('today');
-  setTimeout(resetViewport,400);
+  setTimeout(()=>{fitShell(true);resetViewport();},400);
 }
 init();
 </script>
