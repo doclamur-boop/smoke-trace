@@ -46,6 +46,7 @@ main{flex:1 1 0;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;
   stroke:var(--amber);stroke-width:1.7;stroke-linecap:round;animation:sway 3.4s ease-in-out infinite}
 @keyframes sway{50%{transform:translateY(-2px)}}
 .head-date{font-size:14px;color:var(--faint);letter-spacing:.12em}
+.hdr-btns{display:flex;gap:8px}
 
 /* ── 今日页 ── */
 .today-hero{text-align:center;margin-top:14px}
@@ -87,12 +88,11 @@ main{flex:1 1 0;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;
 .undo.show{opacity:1;transform:none;pointer-events:auto}
 .undo button{background:none;border:0;color:var(--amberD);font-weight:700;font-family:inherit;font-size:15px;padding:2px 8px}
 
-.stats3{display:grid;grid-template-columns:1fr 1fr 1fr;border-top:1px solid var(--line);
+.stats3{display:grid;grid-template-columns:1fr 1fr;border-top:1px solid var(--line);
   border-bottom:1px solid var(--line);margin-top:28px}
 .stats3>div{padding:15px 4px;text-align:center}
 .stats3>div+div{border-left:1px solid var(--line)}
 .stats3 b{display:block;font-size:19px;font-weight:700;margin-bottom:6px}
-.stats3 b.live{color:var(--amberD)}
 .stats3 span{font-size:12px;color:var(--faint);letter-spacing:0;white-space:nowrap}
 .peak{margin-top:14px;text-align:center;font-size:15px;color:var(--ink2)}
 .peak::before{content:"·";color:var(--amber);margin-right:8px}
@@ -134,6 +134,9 @@ canvas{width:100%;display:block;touch-action:none}
 .ghost-btn{background:none;border:1px solid var(--line);border-radius:7px;padding:10px 18px;
   font-family:inherit;font-size:15px;color:var(--ink2)}
 .ghost-btn.wide{display:block;width:100%;margin-top:26px;padding:14px}
+.danger-wide{display:none;width:100%;margin-top:26px;background:var(--alert);color:#F5EFE2;border:0;
+  border-radius:9px;padding:14px;font-family:inherit;font-size:16px;letter-spacing:.1em}
+.danger-wide:active{opacity:.85}
 .hist-day{margin-top:24px}
 .hist-day header{display:flex;align-items:baseline;gap:8px;padding-bottom:7px;border-bottom:1px solid var(--line)}
 .hist-day header .d{font-weight:700;font-size:16px}
@@ -144,6 +147,12 @@ canvas{width:100%;display:block;touch-action:none}
 .hist-row .del{margin-left:auto;background:none;border:0;color:var(--faint);font-size:20px;
   padding:2px 12px;font-family:inherit}
 .hist-row .del:active{color:var(--alert)}
+.hist-row.mg{padding-left:2px}
+.hist-row.mg:active{background:rgba(43,38,34,.05)}
+.cb{width:21px;height:21px;border:1.5px solid var(--faint);border-radius:50%;margin-right:14px;flex:none;position:relative}
+.cb.on{background:var(--ink);border-color:var(--ink)}
+.cb.on::after{content:"";position:absolute;left:6.5px;top:3.5px;width:5px;height:10px;
+  border:solid var(--paper);border-width:0 2px 2px 0;transform:rotate(45deg)}
 .empty{margin-top:44px;text-align:center;color:var(--faint);font-size:15px}
 
 /* ── 设置页 ── */
@@ -184,25 +193,18 @@ nav svg{width:26px;height:26px;display:block;margin:0 auto 4px;fill:none;stroke:
 .cf-btns{display:flex;gap:10px;padding:18px 20px 22px}
 .cf-btns button{flex:1;margin:0}
 .cf-btns .primary{margin-bottom:0}
-.sheet-note{padding:2px 24px 0;font-size:14px;color:var(--faint);line-height:1.7}
 
 /* ── 滚轮 ── */
 .wheel{position:relative;height:290px;overflow:hidden;touch-action:none;margin:4px 0 2px}
-.wheel.small{height:250px}
 .wheel-items{position:absolute;left:0;right:0;top:0;will-change:transform}
 .wheel-item{position:absolute;left:0;right:0;height:50px;display:flex;align-items:center;justify-content:center;
   font-size:24px;color:var(--ink);will-change:transform,opacity}
-.wheel.small .wheel-item{font-size:21px}
 .wheel-item.special{color:var(--faint);font-size:17px;letter-spacing:.3em}
 .wheel-hl{position:absolute;left:24px;right:24px;top:50%;height:50px;transform:translateY(-50%);
   border-top:1px solid var(--line);border-bottom:1px solid var(--line);pointer-events:none;z-index:3}
 .wheel::before,.wheel::after{content:"";position:absolute;left:0;right:0;height:100px;z-index:2;pointer-events:none}
 .wheel::before{top:0;background:linear-gradient(to bottom,var(--paper) 10%,rgba(245,240,230,0))}
 .wheel::after{bottom:0;background:linear-gradient(to top,var(--paper) 10%,rgba(245,240,230,0))}
-.wheel-cap{display:flex;padding:10px 24px 0;font-size:13px;color:var(--faint);letter-spacing:.3em}
-.wheel-cap span{flex:1;text-align:center}
-.wheel-pair{display:flex}
-.wheel-pair .wheel{flex:1}
 
 #toast{position:fixed;left:50%;bottom:94px;transform:translate(-50%,8px);
   background:var(--ink);color:var(--paper);font-size:15px;padding:11px 20px;border-radius:22px;
@@ -245,7 +247,6 @@ nav svg{width:26px;height:26px;display:block;margin:0 auto 4px;fill:none;stroke:
       <div class="stats3">
         <div><b id="statLast">—</b><span>距上一支</span></div>
         <div><b id="statAvg">—</b><span>日均·近30日</span></div>
-        <div><b id="statGap">—</b><span id="gapLabel">最长间隔</span><span id="gapLive"></span></div>
       </div>
       <p class="peak" id="peakLine"></p>
     </section>
@@ -291,9 +292,17 @@ nav svg{width:26px;height:26px;display:block;margin:0 auto 4px;fill:none;stroke:
     <!-- ═══ 历史 ═══ -->
     <section id="page-history" class="page">
       <header class="pg-head"><p class="brand">历 史</p>
-        <button class="ghost-btn" id="btnBackfill">＋ 补记</button>
+        <div class="hdr-btns" id="histNormBtns">
+          <button class="ghost-btn" id="btnBackfill">＋ 补记</button>
+          <button class="ghost-btn" id="btnManage">管理</button>
+        </div>
+        <div class="hdr-btns" id="histMgmtBtns" style="display:none">
+          <button class="ghost-btn" id="btnSelAll">全选</button>
+          <button class="ghost-btn" id="btnDone">完成</button>
+        </div>
       </header>
       <div id="histList"></div>
+      <button class="danger-wide" id="btnDelSel">删除所选（0）</button>
       <button class="ghost-btn wide" id="histOlder">载入更早</button>
     </section>
 
@@ -301,7 +310,6 @@ nav svg{width:26px;height:26px;display:block;margin:0 auto 4px;fill:none;stroke:
     <section id="page-settings" class="page">
       <header class="pg-head"><p class="brand">设 置</p></header>
       <button class="row-btn" id="limitOpen"><span>每日上限</span><span id="limitValue">未设置</span></button>
-      <button class="row-btn" id="sleepOpen"><span>睡眠时段</span><span id="sleepValue">02:00 – 10:00</span></button>
       <p class="sec-t">数 据 <span id="setCount"></span></p>
       <button class="row-btn" id="btnExport"><span>导出备份</span><span class="chev">›</span></button>
       <button class="row-btn" id="btnImport"><span>导入备份</span><span class="chev">›</span></button>
@@ -309,7 +317,7 @@ nav svg{width:26px;height:26px;display:block;margin:0 auto 4px;fill:none;stroke:
       <div class="about">
         <p>数据只保存在这台设备的浏览器里，不会上传到任何服务器。iOS 上 Safari 与主屏 App 的本地数据互相隔离；主屏方式使用则不受「七天清理」限制。请偶尔导出一份备份。</p>
         <p class="vpinfo" id="vpInfo"></p>
-        <p class="ver">烟 迹 · 卷 十三</p>
+        <p class="ver">烟 迹 · 卷 十五</p>
       </div>
     </section>
   </main>
@@ -334,18 +342,6 @@ nav svg{width:26px;height:26px;display:block;margin:0 auto 4px;fill:none;stroke:
   <header><h4>每日上限</h4><button class="x" data-close>取消</button></header>
   <div class="wheel" id="wheelBox"><div class="wheel-hl"></div></div>
   <button class="primary" id="limitSave">保 存</button>
-</div>
-
-<div class="sheet" id="sheetSleep">
-  <header><h4>睡眠时段</h4><button class="x" data-close>取消</button></header>
-  <p class="sheet-note">这段时间通常不吸烟；计算「最长间隔」时会自动扣除，一夜安眠不会被算成戒烟成绩。</p>
-  <div class="wheel-cap"><span>就 寝</span><span>起 床</span></div>
-  <div class="wheel-pair">
-    <div class="wheel small" id="wheelSleepA"><div class="wheel-hl"></div></div>
-    <div class="wheel small" id="wheelSleepB"><div class="wheel-hl"></div></div>
-  </div>
-  <button class="ghost" id="sleepToggle"></button>
-  <button class="primary" id="sleepSave">保 存</button>
 </div>
 
 <div class="sheet" id="sheetBackfill">
@@ -380,7 +376,6 @@ const DAY=864e5, pad=n=>String(n).padStart(2,'0');
 const CF='"Source Han Serif SC","Noto Serif SC","Songti SC",Georgia,serif';
 const fmtHM=ts=>{const d=new Date(ts);return pad(d.getHours())+':'+pad(d.getMinutes());};
 const fmtMD=ts=>{const d=new Date(ts);return (d.getMonth()+1)+'月'+d.getDate()+'日';};
-const fmtT=m=>pad(Math.floor(m/60))+':'+pad(m%60);
 const startOfDay=ts=>{const d=new Date(ts);d.setHours(0,0,0,0);return d.getTime();};
 const uid=()=>crypto.randomUUID?crypto.randomUUID():Date.now().toString(36)+Math.random().toString(36).slice(2);
 const CN='一二三四五六七八九十';
@@ -399,15 +394,14 @@ function resetViewport(){
   document.body.scrollTop=0;
 }
 
-/* 独立模式视口修复：iOS 偶发把布局视口短报（如 759<812），
-   底部出现无主空带。检测到显著短缺时，把壳体钉在真实屏幕高度上。 */
+/* 独立模式视口修复：iOS 偶发短报布局视口，把壳体钉在真实屏幕高度上 */
 function fixShell(){
   const app=document.getElementById('app');
   const standalone=(navigator.standalone===true)
     ||(window.matchMedia&&window.matchMedia('(display-mode: standalone)').matches);
-  if(!standalone||window.innerWidth>window.innerHeight){   // Safari 或横屏：不干预
+  if(!standalone||window.innerWidth>window.innerHeight){
     app.style.height='';document.body.style.height='';return;}
-  const full=Math.max(screen.width,screen.height);          // 竖屏真实全高
+  const full=Math.max(screen.width,screen.height);
   if(full-window.innerHeight>2){
     document.body.style.height=full+'px';
     app.style.height=full+'px';
@@ -437,14 +431,11 @@ const DB={db:null,
 let events=[];
 let prefs=mergePrefs(null);
 let cur='today', statsRange=30, histDays=14;
+let manageMode=false, selected=new Set(), histVisible=[];
 
 function mergePrefs(p){p=(p&&typeof p==='object')?p:{};
-  const s=(p.sleep&&typeof p.sleep==='object')?p.sleep:{};
   return{dailyLimit:(typeof p.dailyLimit==='number'?p.dailyLimit:null),
-    limitTouched:!!p.limitTouched,
-    sleep:{on:s.on!==false,
-      start:Number.isFinite(s.start)?s.start:120,
-      end:Number.isFinite(s.end)?s.end:600}};}
+    limitTouched:!!p.limitTouched};}
 
 /* ───────── 数据操作 ───────── */
 async function addEvent(ts){const ev={id:uid(),t:ts};events.push(ev);events.sort((a,b)=>a.t-b.t);await DB.putEvent(ev);return ev;}
@@ -453,24 +444,6 @@ function firstDayStart(){return events.length?startOfDay(events[0].t):null;}
 function spanDays(rangeStart){const f=firstDayStart();if(f===null)return 0;
   const from=(rangeStart==null)?f:Math.max(f,rangeStart);
   return Math.round((startOfDay(Date.now())-from)/DAY)+1;}
-
-function sleepDur(){const s=prefs.sleep;if(!s||!s.on)return 0;
-  return ((s.end-s.start)%1440+1440)%1440;}
-function effGap(a,b){
-  const raw=b-a,dur=sleepDur();if(!dur)return raw;
-  const s=prefs.sleep,segMs=dur*6e4,startMs=s.start*6e4;
-  const dayA=startOfDay(a),n=Math.round((startOfDay(b)-dayA)/DAY);
-  let cut=0;
-  for(let k=-1;k<=n+1;k++){
-    const ss=dayA+k*DAY+startMs,se=ss+segMs;
-    const ov=Math.min(b,se)-Math.max(a,ss);
-    if(ov>0)cut+=ov;}
-  return Math.max(0,raw-cut);}
-
-function longestGap(now){let max=0,live=false;
-  for(let i=1;i<events.length;i++){const g=effGap(events[i-1].t,events[i].t);if(g>max)max=g;}
-  if(events.length){const g=effGap(events[events.length-1].t,now);if(g>max){max=g;live=true;}}
-  return {ms:max,live};}
 
 function hourlyBins(days){const b=new Array(24).fill(0);
   const s=days===Infinity?0:startOfDay(Date.now())-(days-1)*DAY;
@@ -578,23 +551,35 @@ function ctx2d(cv,h){const w=cv.clientWidth||cv.parentElement.clientWidth;
   const c=cv.getContext('2d');c.setTransform(d,0,0,d,0,0);c.clearRect(0,0,w,h);return {c,w,h};}
 function rr(c,x,y,w,h,r){r=Math.min(r,w/2,h/2);c.beginPath();c.moveTo(x+r,y);
   c.arcTo(x+w,y,x+w,y+h,r);c.arcTo(x+w,y+h,x,y+h,r);c.arcTo(x,y+h,x,y,r);c.arcTo(x,y,x+w,y,r);c.closePath();}
-function heatColor(t){t=Math.sqrt(Math.min(1,t));
-  const r=Math.round(0xE0+(0x6E-0xE0)*t),g=Math.round(0xCE+(0x48-0xCE)*t),b=Math.round(0xAF+(0x1C-0xAF)*t);
-  return `rgb(${r},${g},${b})`;}
+/* 统一色阶：米 → 浅琥珀 → 琥珀 → 深墨 */
+function rampColor(t){t=Math.min(1,Math.max(0,t));
+  const st=[[0xE8,0xDF,0xCC],[0xC8,0x9A,0x5E],[0x8A,0x5A,0x2C],[0x2B,0x26,0x22]];
+  const seg=Math.min(2,Math.floor(t*3)),f=t*3-seg,a=st[seg],b=st[seg+1];
+  return `rgb(${Math.round(a[0]+(b[0]-a[0])*f)},${Math.round(a[1]+(b[1]-a[1])*f)},${Math.round(a[2]+(b[2]-a[2])*f)})`;}
 
-/* ───────── 图表一 ───────── */
+/* ───────── 图表一：24 小时分布 ───────── */
 let hourlyHi=-1,hourlyGeom=null;
 function _drawHourly(){
   const bins=hourlyBins(statsRange),P=peakHours(bins);
   const cv=$('#cvHourly'),{c,w,h}=ctx2d(cv,212);
   const padL=6,padR=6,padT=28,padB=24,iw=w-padL-padR,ih=h-padT-padB;
   const bw=iw/24,barW=Math.min(15,bw*.52),maxV=Math.max(...bins,1);
+  const yMax=Math.max(3,Math.ceil(maxV/3)*3);
   hourlyGeom={padL,bw};
-  c.strokeStyle=C.line;c.lineWidth=1;
+  c.strokeStyle=C.line;c.lineWidth=1;c.setLineDash([2,4]);
+  [yMax/2,yMax].forEach(v=>{const y=padT+ih-v/yMax*ih;
+    c.beginPath();c.moveTo(padL,y+.5);c.lineTo(w-padR,y+.5);c.stroke();});
+  c.setLineDash([]);
   c.beginPath();c.moveTo(padL,padT+ih+.5);c.lineTo(w-padR,padT+ih+.5);c.stroke();
-  bins.forEach((v,i)=>{if(!v)return;const bh=v/maxV*ih,x=padL+i*bw+(bw-barW)/2;
-    c.fillStyle=(P.idx.includes(i)||i===hourlyHi)?C.ink:C.amber;
-    rr(c,x,padT+ih-bh,barW,Math.max(2,bh),2);c.fill();});
+  bins.forEach((v,i)=>{if(!v)return;const bh=v/yMax*ih,x=padL+i*bw+(bw-barW)/2;
+    const isPk=P.idx.includes(i)||i===hourlyHi;
+    const g=c.createLinearGradient(0,padT+ih-bh,0,padT+ih);
+    if(isPk){g.addColorStop(0,'#4A4138');g.addColorStop(1,'#2B2622');}
+    else{g.addColorStop(0,'#C08B4E');g.addColorStop(1,'#96632A');}
+    c.fillStyle=g;
+    rr(c,x,padT+ih-bh,barW,Math.max(2,bh),3);c.fill();});
+  c.font='10.5px '+CF;c.fillStyle=C.faint;c.textAlign='left';
+  c.fillText(String(yMax),w-padR+1,padT+ih-yMax/yMax*ih+3);
   c.font='11.5px '+CF;c.fillStyle=C.faint;c.textAlign='center';
   [0,6,12,18].forEach(t=>c.fillText(t+'时',padL+t*bw+bw/2,h-8));
   c.font='13px '+CF;
@@ -607,7 +592,7 @@ function _drawHourly(){
   if(bins.every(v=>!v)){c.fillStyle=C.faint;c.font='13px '+CF;c.fillText('暂无记录',w/2,padT+ih/2);}
 }
 
-/* ───────── 图表二 ───────── */
+/* ───────── 图表二：星期 × 时辰热力 ───────── */
 let hmHi=null,hmGeom=null,hmGrid=null;
 function _drawHeatmap(){
   const cv=$('#cvHeat'),{c,w,h}=ctx2d(cv,216);
@@ -623,14 +608,15 @@ function _drawHeatmap(){
   '一二三四五六日'.split('').forEach((t,i)=>c.fillText(t,padL-8,padT+i*ch+ch/2+4));
   c.textAlign='center';
   [0,6,12,18].forEach(t=>c.fillText(t+'时',padL+t*cw+cw/2,h-5));
-  for(let r=0;r<7;r++)for(let col=0;col<24;col++){const v=grid[r][col];if(!v)continue;
-    c.fillStyle=heatColor(v/Math.max(1,max));
-    rr(c,padL+col*cw+1,padT+r*ch+1,cw-2,ch-2,2.5);c.fill();}
-  if(hmHi){c.strokeStyle=C.ink;c.lineWidth=1.2;
-    c.strokeRect(padL+hmHi.c*cw+.5,padT+hmHi.r*ch+.5,cw-1,ch-1);}
+  for(let r=0;r<7;r++)for(let col=0;col<24;col++){
+    const v=grid[r][col],x=padL+col*cw+1,y=padT+r*ch+1;
+    c.fillStyle=v?rampColor(Math.sqrt(v/Math.max(1,max))):'rgba(43,38,34,.045)';
+    rr(c,x,y,cw-2,ch-2,3);c.fill();}
+  if(hmHi){c.strokeStyle=C.ink;c.lineWidth=1.6;
+    rr(c,padL+hmHi.c*cw+.5,padT+hmHi.r*ch+.5,cw-2,ch-2,3);c.stroke();}
 }
 
-/* ───────── 图表三 ───────── */
+/* ───────── 图表三：走势 ───────── */
 let trendData=[],trendGeom=null,trendHi=-1;
 function buildTrend(){
   if(!events.length){trendData=[];return;}
@@ -678,7 +664,7 @@ function _drawTrend(){
   c.strokeStyle=C.line;c.lineWidth=1;c.setLineDash([2,4]);
   [yMax/2,yMax].forEach(v=>{c.beginPath();c.moveTo(padL,Y(v)+.5);c.lineTo(w-padR,Y(v)+.5);c.stroke();});
   c.setLineDash([]);
-  c.fillStyle=C.faint;c.font='11.5px '+CF;c.textAlign='left';
+  c.fillStyle=C.faint;c.font='10.5px '+CF;c.textAlign='left';
   c.fillText(String(yMax),4,padT-11);
   const lbl=d=>{const x=new Date(d);return (x.getMonth()+1)+'/'+x.getDate();};
   c.textAlign='center';
@@ -692,21 +678,32 @@ function _drawTrend(){
     c.fillText(lbl(p.day),w/2,h-6);
     return;
   }
+  const mPts=data.map((p,i)=>({x:X(i),y:Y(p.m)}));
+  const gr=c.createLinearGradient(0,padT,0,padT+ih);
+  gr.addColorStop(0,'rgba(166,114,56,.22)');
+  gr.addColorStop(1,'rgba(166,114,56,0)');
+  c.beginPath();drawSmooth(c,mPts);
+  c.lineTo(X(n-1),padT+ih);c.lineTo(X(0),padT+ih);c.closePath();
+  c.fillStyle=gr;c.fill();
   c.strokeStyle='rgba(166,114,56,.42)';c.lineWidth=1;c.beginPath();
   drawSmooth(c,data.map((p,i)=>({x:X(i),y:Y(p.c)})));c.stroke();
+  if(n<=31){c.fillStyle='rgba(166,114,56,.75)';
+    data.forEach((p,i)=>{c.beginPath();c.arc(X(i),Y(p.c),2,0,7);c.fill();});}
   c.strokeStyle=C.ink;c.lineWidth=1.8;c.beginPath();
-  drawSmooth(c,data.map((p,i)=>({x:X(i),y:Y(p.m)})));c.stroke();
+  drawSmooth(c,mPts);c.stroke();
   c.fillStyle=C.faint;c.font='11.5px '+CF;
   c.fillText(lbl(data[0].day),padL+14,h-6);
   c.fillText(lbl(data[n-1].day),w-padR-14,h-6);
   if(n>24)c.fillText(lbl(data[Math.floor(n/2)].day),w/2,h-6);
   if(trendHi>=0&&trendHi<n){const p=data[trendHi];
     c.fillStyle=C.amber;c.beginPath();c.arc(X(trendHi),Y(p.c),3.5,0,7);c.fill();
+    c.strokeStyle='#F5F0E6';c.lineWidth=1.4;
+    c.beginPath();c.arc(X(trendHi),Y(p.c),3.5,0,7);c.stroke();
     const d=new Date(p.day);c.fillStyle=C.ink2;c.font='13px '+CF;
     c.fillText(`${d.getMonth()+1}月${d.getDate()}日 · ${p.c} 支`,Math.min(w-56,Math.max(56,X(trendHi))),15);}
 }
 
-/* ───────── 图表四 ───────── */
+/* ───────── 图表四：工作日与周末 ───────── */
 function drawWeek(){
   const cv=$('#cvWeek'),{c,w,h}=ctx2d(cv,188);
   const now=startOfDay(Date.now()),f=firstDayStart();
@@ -718,17 +715,26 @@ function drawWeek(){
   const avg=sums.map((v,i)=>days[i]?v/days[i]:0);
   const padL=10,padB=24,padT=18,iw=w-padL-10,ih=h-padT-padB;
   const bw=iw/7,barW=Math.min(32,bw*.4),maxA=Math.max(...avg,1);
+  const allS=sums.reduce((a,b)=>a+b,0),allD=days.reduce((a,b)=>a+b,0);
+  if(allD&&allS){const by=padT+ih-allS/allD/maxA*ih;
+    c.strokeStyle='rgba(43,38,34,.4)';c.lineWidth=1;c.setLineDash([2,4]);
+    c.beginPath();c.moveTo(padL,by+.5);c.lineTo(w-10,by+.5);c.stroke();c.setLineDash([]);}
   for(let i=0;i<7;i++){
     const bh=avg[i]/maxA*ih,x=padL+i*bw+(bw-barW)/2,y=padT+ih-bh;
-    if(avg[i]>0){c.fillStyle=i>=5?C.ink:C.amber;rr(c,x,y,barW,Math.max(2,bh),2);c.fill();}
+    if(avg[i]>0){
+      const g=c.createLinearGradient(0,y,0,padT+ih);
+      if(i>=5){g.addColorStop(0,'#4A4138');g.addColorStop(1,'#2B2622');}
+      else{g.addColorStop(0,'#C08B4E');g.addColorStop(1,'#96632A');}
+      c.fillStyle=g;rr(c,x,y,barW,Math.max(2,bh),3);c.fill();}
     c.font='11.5px '+CF;c.textAlign='center';
     if(days[i]){c.fillStyle=C.ink2;c.fillText(avg[i].toFixed(1),padL+i*bw+bw/2,y-7);}
     c.fillStyle=C.faint;c.fillText('一二三四五六日'[i],padL+i*bw+bw/2,h-8);}
   const dw=days.slice(0,5).reduce((a,b)=>a+b,0),de=days.slice(5).reduce((a,b)=>a+b,0);
   const sw=sums.slice(0,5).reduce((a,b)=>a+b,0),se=sums.slice(5).reduce((a,b)=>a+b,0);
   const wAvg=dw?(sw/dw).toFixed(1)+' 支':'—',eAvg=de?(se/de).toFixed(1)+' 支':'—';
+  const base=allD&&allS?` · 虚线为整体日均 ${(allS/allD).toFixed(1)}`:'';
   $('#weekNote').textContent=events.length?
-    `工作日日均 ${wAvg} · 周末日均 ${eAvg}`:'暂无数据';
+    `工作日日均 ${wAvg} · 周末日均 ${eAvg}${base}`:'暂无数据';
 }
 
 /* ───────── 触摸读数 ───────── */
@@ -839,35 +845,6 @@ async function saveLimit(){
   toast(prefs.dailyLimit?`每日上限设为 ${prefs.dailyLimit} 支`:'已取消上限');
 }
 
-/* ───────── 睡眠时段 ───────── */
-let sleepA=null,sleepB=null;
-const sleepLabels=()=>Array.from({length:48},(_,i)=>pad(Math.floor(i/2))+':'+(i%2?'30':'00'));
-function syncSleepUI(){
-  const on=prefs.sleep&&prefs.sleep.on;
-  $('#sleepValue').textContent=on?fmtT(prefs.sleep.start)+' – '+fmtT(prefs.sleep.end):'未启用';
-  $('#sleepToggle').textContent=on?'停用（改按自然时间计算）':'已停用 · 点此启用';
-}
-function openSleep(){
-  openSheet('#sheetSleep');
-  if(!sleepA){sleepA=new Wheel($('#wheelSleepA'),sleepLabels(),false);
-    sleepB=new Wheel($('#wheelSleepB'),sleepLabels(),false);}
-  sleepA.setIndex(Math.min(47,Math.round(prefs.sleep.start/30)),true);
-  sleepB.setIndex(Math.min(47,Math.round(prefs.sleep.end/30)),true);
-  syncSleepUI();
-}
-async function toggleSleep(){
-  prefs.sleep.on=!prefs.sleep.on;
-  await DB.setPref('limit',prefs);
-  syncSleepUI();renderToday();
-  toast(prefs.sleep.on?'已启用睡眠时段':'已停用，按自然时间计算');
-}
-async function saveSleep(){
-  prefs.sleep={on:true,start:sleepA.index()*30,end:sleepB.index()*30};
-  await DB.setPref('limit',prefs);
-  closeSheet();renderAll();
-  toast(`睡眠 ${fmtT(prefs.sleep.start)} – ${fmtT(prefs.sleep.end)}`);
-}
-
 /* ───────── 弹层 / 提示 ───────── */
 function openSheet(sel){$('#mask').classList.add('show');$(sel).classList.add('show');}
 function closeSheet(){$('#mask').classList.remove('show');$$('.sheet').forEach(s=>s.classList.remove('show'));}
@@ -889,8 +866,7 @@ function toast(msg){const t=$('#toast');t.textContent=msg;t.classList.add('show'
 /* ───────── 今日页 ───────── */
 function renderToday(){
   const now=Date.now(),sod=startOfDay(now),d=new Date(now);
-  const today=events.filter(e=>e.t>=sod);
-  const n=today.length,lim=prefs.dailyLimit;
+  const n=events.filter(e=>e.t>=sod).length,lim=prefs.dailyLimit;
   $('#todayDate').textContent=cnDate(d)+' · '+cnWeek(d);
   const num=$('#todayNum');num.textContent=n;
   num.classList.toggle('over',!!lim&&n>=lim);
@@ -908,11 +884,6 @@ function renderToday(){
   for(const e of events)if(e.t>=s30)c30++;
   const sp=spanDays(null);
   $('#statAvg').textContent=(events.length&&sp>0)?(c30/Math.min(30,sp)).toFixed(1)+' 支':'—';
-  const g=longestGap(now);
-  $('#statGap').textContent=events.length?fmtDur(g.ms):'—';
-  $('#gapLabel').textContent=(prefs.sleep&&prefs.sleep.on)?'最长清醒间隔':'最长间隔';
-  $('#gapLive').textContent=g.live?'（进行中）':'';
-  $('#statGap').classList.toggle('live',g.live);
   const bins=hourlyBins(30),P=peakHours(bins);
   $('#peakLine').textContent=!events.length?'按下圆章，记下第一支烟':
     P.max>=3?(P.idx.length<=3
@@ -975,25 +946,54 @@ function renderStats(){
   $('#heatRead').textContent='滑过格子，查看具体时辰';
 }
 
-/* ───────── 历史页 ───────── */
+/* ───────── 历史页（含批量删除） ───────── */
 function renderHistory(reset){
-  if(reset)histDays=14;
+  if(reset){histDays=14;manageMode=false;selected.clear();}
   const end=startOfDay(Date.now()),from=end-(histDays-1)*DAY;
   const box=$('#histList');box.innerHTML='';
   const groups={};
   for(const e of events){if(e.t<from)continue;const k=startOfDay(e.t);(groups[k]=groups[k]||[]).push(e);}
   const keys=Object.keys(groups).map(Number).sort((a,b)=>b-a);
   if(!keys.length)box.innerHTML='<p class="empty">这段日子还没有记录</p>';
+  histVisible=[];
   for(const k of keys){
     const arr=groups[k].sort((a,b)=>b.t-a.t),d=new Date(k);
     const sec=document.createElement('section');sec.className='hist-day';
     sec.innerHTML=`<header><span class="d">${cnDate(d)}</span><span class="wd">${cnWeek(d)}</span><span class="cnt">${arr.length} 支</span></header>`;
     for(const e of arr){
-      const row=document.createElement('div');row.className='hist-row';
-      row.innerHTML=`<span class="t">${fmtHM(e.t)}</span><button class="del" data-id="${e.id}">×</button>`;
+      histVisible.push(e.id);
+      const row=document.createElement('div');
+      row.className='hist-row'+(manageMode?' mg':'');
+      row.dataset.id=e.id;
+      if(manageMode){
+        row.innerHTML=`<span class="cb${selected.has(e.id)?' on':''}"></span><span class="t">${fmtHM(e.t)}</span>`;
+      }else{
+        row.innerHTML=`<span class="t">${fmtHM(e.t)}</span><button class="del" data-id="${e.id}">×</button>`;
+      }
       sec.appendChild(row);}
     box.appendChild(sec);}
+  $('#histNormBtns').style.display=manageMode?'none':'flex';
+  $('#histMgmtBtns').style.display=manageMode?'flex':'none';
+  $('#btnSelAll').textContent=(histVisible.length&&selected.size>=histVisible.length)?'取消全选':'全选';
+  const delBtn=$('#btnDelSel');
+  delBtn.style.display=(manageMode&&selected.size)?'block':'none';
+  delBtn.textContent=`删除所选（${selected.size}）`;
+  $('#histOlder').style.marginTop=delBtn.style.display==='block'?'12px':'26px';
   $('#histOlder').style.display=events.length&&events[0].t<from?'':'none';
+}
+function toggleSel(id){
+  if(selected.has(id))selected.delete(id);else selected.add(id);
+  renderHistory(false);
+}
+async function deleteSelected(){
+  if(!selected.size)return;
+  const ok=await confirmSheet('删除所选记录？',
+    `共 ${selected.size} 条记录将被永久移除，无法恢复。`,'删除');
+  if(!ok)return;
+  for(const id of selected)await DB.delEvent(id);
+  events=events.filter(x=>!selected.has(x.id));
+  selected.clear();
+  renderAll();toast('已删除所选记录');
 }
 async function onHistDel(e){
   const b=e.target.closest('.del');if(!b)return;
@@ -1021,12 +1021,10 @@ async function saveBackfill(){
 /* ───────── 设置页 / 数据 ───────── */
 function renderSettings(){
   $('#limitValue').textContent=prefs.dailyLimit?prefs.dailyLimit+' 支':'未设置';
-  const on=prefs.sleep&&prefs.sleep.on;
-  $('#sleepValue').textContent=on?fmtT(prefs.sleep.start)+' – '+fmtT(prefs.sleep.end):'未启用';
   $('#setCount').textContent=events.length+' 条';
   $('#vpInfo').textContent=`视口 ${window.innerWidth}×${window.innerHeight} · 屏幕 ${screen.width}×${screen.height} · 壳 ${document.getElementById('app').offsetHeight}`;
 }
-function buildExport(){return JSON.stringify({app:'smoke-trace',version:2,
+function buildExport(){return JSON.stringify({app:'smoke-trace',version:3,
   exportedAt:new Date().toISOString(),prefs,events});}
 function doExport(){
   const d=new Date(),ds=`${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
@@ -1114,12 +1112,21 @@ function bindUI(){
   $('#limitMini').onclick=openLimit;
   $('#limitOpen').onclick=openLimit;
   $('#limitSave').onclick=saveLimit;
-  $('#sleepOpen').onclick=openSleep;
-  $('#sleepSave').onclick=saveSleep;
-  $('#sleepToggle').onclick=toggleSleep;
   $('#btnBackfill').onclick=openBackfill;
   $('#backfillSave').onclick=saveBackfill;
-  $('#histList').addEventListener('click',onHistDel);
+  $('#btnManage').onclick=()=>{manageMode=true;selected.clear();renderHistory(false);};
+  $('#btnDone').onclick=()=>{manageMode=false;selected.clear();renderHistory(false);};
+  $('#btnSelAll').onclick=()=>{
+    if(histVisible.length&&selected.size>=histVisible.length)selected.clear();
+    else selected=new Set(histVisible);
+    renderHistory(false);};
+  $('#btnDelSel').onclick=deleteSelected;
+  $('#histList').addEventListener('click',e=>{
+    if(manageMode){
+      const row=e.target.closest('.hist-row');
+      if(row&&row.dataset.id)toggleSel(row.dataset.id);
+      return;}
+    onHistDel(e);});
   $('#histOlder').onclick=()=>{histDays+=28;renderHistory(false);};
   $('#btnExport').onclick=()=>openSheet('#sheetExport');
   $('#expDownload').onclick=doExport;
