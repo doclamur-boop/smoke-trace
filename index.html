@@ -20,7 +20,7 @@
 }
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;
   -webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
-input{-webkit-user-select:auto;user-select:auto}
+input,textarea{-webkit-user-select:text;user-select:text}
 body{position:fixed;inset:0;overflow:hidden;overscroll-behavior:none;
   background:var(--paper);color:var(--ink);font-family:var(--serif);touch-action:manipulation}
 #app{position:absolute;inset:0;max-width:520px;margin:0 auto;
@@ -182,13 +182,16 @@ nav svg{width:26px;height:26px;display:block;margin:0 auto 4px;fill:none;stroke:
 .sheet header{display:flex;align-items:center;justify-content:space-between;padding:18px 20px 8px}
 .sheet h4{font-size:19px;font-weight:700;letter-spacing:.05em}
 .sheet .x{background:none;border:0;color:var(--faint);font-size:16px;font-family:inherit}
-.sheet .primary{display:block;width:calc(100% - 40px);margin:16px auto 20px;background:var(--ink);color:var(--paper);
+.sheet .primary{display:block;width:calc(100% - 40px);margin:16px auto 14px;background:var(--ink);color:var(--paper);
   border:0;border-radius:9px;padding:15px;font-family:inherit;font-size:17px;letter-spacing:.15em}
 .sheet .primary.danger{background:var(--alert)}
 .sheet .ghost{display:block;width:calc(100% - 40px);margin:0 auto 14px;background:none;color:var(--ink2);
   border:1px solid var(--line);border-radius:9px;padding:12px;font-family:inherit;font-size:15px;letter-spacing:.1em}
 .sheet input[type=datetime-local]{display:block;width:calc(100% - 40px);margin:16px auto 0;padding:14px;
   border:1px solid var(--line);border-radius:9px;background:#fff;color:var(--ink);font-family:inherit;font-size:17px}
+.sheet textarea{display:block;width:calc(100% - 40px);margin:14px auto 0;height:150px;padding:12px;
+  border:1px solid var(--line);border-radius:9px;background:#fff;color:var(--ink);resize:none;
+  font-family:Menlo,Consolas,monospace;font-size:12px;line-height:1.5;outline:none}
 .cf-body{padding:2px 20px 4px;font-size:15px;color:var(--ink2);line-height:1.7}
 .cf-btns{display:flex;gap:10px;padding:18px 20px 22px}
 .cf-btns button{flex:1;margin:0}
@@ -336,9 +339,9 @@ nav svg{width:26px;height:26px;display:block;margin:0 auto 4px;fill:none;stroke:
       <button class="row-btn" id="btnImport"><span>导入备份</span><span class="chev">›</span></button>
       <button class="row-btn danger" id="btnClear"><span>清空全部数据</span><span>›</span></button>
       <div class="about">
-        <p>数据只保存在这台设备的浏览器里，不会上传到任何服务器。iOS 上 Safari 与主屏 App 的本地数据互相隔离；主屏方式使用则不受「七天清理」限制。请偶尔导出一份备份。</p>
+        <p>数据只保存在这台设备的浏览器里，不会上传到任何服务器。iOS 为每个主屏幕图标分配独立存储：更换图标后请先在旧图标里「导出备份 → 复制到剪贴板」，再到新图标里「导入备份 → 从剪贴板读取」。请偶尔导出一份备份。</p>
         <p class="vpinfo" id="vpInfo"></p>
-        <p class="ver">烟 迹 · 卷 十六</p>
+        <p class="ver">烟 迹 · 卷 十七</p>
       </div>
     </section>
   </main>
@@ -387,8 +390,16 @@ nav svg{width:26px;height:26px;display:block;margin:0 auto 4px;fill:none;stroke:
 
 <div class="sheet" id="sheetExport">
   <header><h4>导出备份</h4><button class="x" data-close>关闭</button></header>
-  <button class="primary" id="expDownload">下载 JSON 文件</button>
-  <button class="ghost" id="expCopy">复制到剪贴板</button>
+  <button class="primary" id="expCopy">复制到剪贴板</button>
+  <button class="ghost" id="expDownload">下载 JSON 文件</button>
+</div>
+
+<div class="sheet" id="sheetImport">
+  <header><h4>导入备份</h4><button class="x" data-close>取消</button></header>
+  <textarea id="importText" placeholder="粘贴备份 JSON 到这里……"></textarea>
+  <button class="primary" id="impText">导入粘贴内容</button>
+  <button class="ghost" id="impPaste">从剪贴板读取</button>
+  <button class="ghost" id="impFile">选择 JSON 文件</button>
 </div>
 
 <div class="sheet" id="sheetConfirm">
@@ -468,7 +479,6 @@ let prefs=mergePrefs(null);
 let cur='today', statsRange=30, histDays=14;
 let manageMode=false, selected=new Set(), histVisible=[];
 
-/* 周期上限：{on, days:1-7, cigs:1-20}；旧版 dailyLimit 自动换算为 1天 */
 function mergePrefs(p){p=(p&&typeof p==='object')?p:{};
   let lim=null;
   if(p.limit&&typeof p.limit==='object'
@@ -594,7 +604,6 @@ function ctx2d(cv,h){const w=cv.clientWidth||cv.parentElement.clientWidth;
   const c=cv.getContext('2d');c.setTransform(d,0,0,d,0,0);c.clearRect(0,0,w,h);return {c,w,h};}
 function rr(c,x,y,w,h,r){r=Math.min(r,w/2,h/2);c.beginPath();c.moveTo(x+r,y);
   c.arcTo(x+w,y,x+w,y+h,r);c.arcTo(x+w,y+h,x,y+h,r);c.arcTo(x,y+h,x,y,r);c.arcTo(x,y,x+w,y,r);c.closePath();}
-/* 统一色阶：米 → 浅琥珀 → 琥珀 → 深墨 */
 function rampColor(t){t=Math.min(1,Math.max(0,t));
   const st=[[0xE8,0xDF,0xCC],[0xC8,0x9A,0x5E],[0x8A,0x5A,0x2C],[0x2B,0x26,0x22]];
   const seg=Math.min(2,Math.floor(t*3)),f=t*3-seg,a=st[seg],b=st[seg+1];
@@ -1091,7 +1100,7 @@ async function saveBackfill(){
   await addEvent(ts);closeSheet();renderAll();toast('已补记 '+fmtHM(ts));
 }
 
-/* ───────── 设置页 / 数据 ───────── */
+/* ───────── 设置页 / 导入导出 ───────── */
 function renderSettings(){
   const L=prefs.limit;
   $('#limitValue').textContent=(prefs.limitTouched&&L.on)
@@ -1120,26 +1129,37 @@ async function doCopy(){
     ta.remove();}
   closeSheet();
 }
-function doImport(e){
+/* 通用导入：接受任意备份 JSON 文本 */
+async function importJSON(text){
+  try{
+    const data=JSON.parse(text);
+    const list=Array.isArray(data)?data:data.events;
+    if(!Array.isArray(list))throw 0;
+    const valid=list.filter(x=>x&&typeof x.t==='number'&&isFinite(x.t)).map(x=>({id:x.id||uid(),t:x.t}));
+    const haveId=new Set(events.map(x=>x.id)),haveT=new Set(events.map(x=>x.t));
+    const add=valid.filter(x=>!haveId.has(x.id)&&!haveT.has(x.t));
+    for(const ev of add)await DB.putEvent(ev);
+    events=events.concat(add).sort((a,b)=>a.t-b.t);
+    if(data.prefs&&typeof data.prefs==='object'){
+      prefs=mergePrefs(data.prefs);
+      await DB.setPref('limit',prefs);}
+    $('#importText').value='';
+    closeSheet();renderAll();
+    toast(add.length?`已导入 ${add.length} 条记录`:'没有需要导入的新记录');
+  }catch(_){toast('内容不是有效的备份');}
+}
+async function doPaste(){
+  try{
+    const t=await navigator.clipboard.readText();
+    if(!t){toast('剪贴板是空的');return;}
+    $('#importText').value=t;
+    toast('已读取剪贴板，点「导入粘贴内容」确认');
+  }catch(e){toast('读取被拒，请长按文本框手动粘贴');}
+}
+function doImportFile(e){
   const f=e.target.files[0];e.target.value='';if(!f)return;
   const r=new FileReader();
-  r.onload=async()=>{
-    try{
-      const data=JSON.parse(r.result);
-      const list=Array.isArray(data)?data:data.events;
-      if(!Array.isArray(list))throw 0;
-      const valid=list.filter(x=>x&&typeof x.t==='number'&&isFinite(x.t)).map(x=>({id:x.id||uid(),t:x.t}));
-      const haveId=new Set(events.map(x=>x.id)),haveT=new Set(events.map(x=>x.t));
-      const add=valid.filter(x=>!haveId.has(x.id)&&!haveT.has(x.t));
-      for(const ev of add)await DB.putEvent(ev);
-      events=events.concat(add).sort((a,b)=>a.t-b.t);
-      if(data.prefs&&typeof data.prefs==='object'){
-        prefs=mergePrefs(data.prefs);
-        await DB.setPref('limit',prefs);}
-      renderAll();
-      toast(add.length?`已导入 ${add.length} 条记录`:'没有需要导入的新记录');
-    }catch(_){toast('文件格式不正确');}
-  };
+  r.onload=async()=>importJSON(r.result);
   r.readAsText(f);
 }
 async function doClear(){
@@ -1216,8 +1236,12 @@ function bindUI(){
   $('#btnExport').onclick=()=>openSheet('#sheetExport');
   $('#expDownload').onclick=doExport;
   $('#expCopy').onclick=doCopy;
-  $('#btnImport').onclick=()=>$('#fileImport').click();
-  $('#fileImport').onchange=doImport;
+  $('#btnImport').onclick=()=>openSheet('#sheetImport');
+  $('#impText').onclick=()=>{const v=$('#importText').value.trim();
+    if(!v){toast('请先粘贴内容');return;}importJSON(v);};
+  $('#impPaste').onclick=doPaste;
+  $('#impFile').onclick=()=>$('#fileImport').click();
+  $('#fileImport').onchange=doImportFile;
   $('#btnClear').onclick=doClear;
   $('#mask').addEventListener('click',()=>{closeSheet();if(confirmRes){confirmRes(false);confirmRes=null;}});
   $$('.sheet [data-close]').forEach(b=>b.addEventListener('click',closeSheet));
