@@ -185,8 +185,8 @@ nav svg{width:26px;height:26px;display:block;margin:0 auto 4px;fill:none;stroke:
 .sheet .primary{display:block;width:calc(100% - 40px);margin:16px auto 20px;background:var(--ink);color:var(--paper);
   border:0;border-radius:9px;padding:15px;font-family:inherit;font-size:17px;letter-spacing:.15em}
 .sheet .primary.danger{background:var(--alert)}
-.sheet .ghost{display:block;width:calc(100% - 40px);margin:0 auto 16px;background:none;color:var(--ink2);
-  border:1px solid var(--line);border-radius:9px;padding:14px;font-family:inherit;font-size:16px;letter-spacing:.1em}
+.sheet .ghost{display:block;width:calc(100% - 40px);margin:0 auto 14px;background:none;color:var(--ink2);
+  border:1px solid var(--line);border-radius:9px;padding:12px;font-family:inherit;font-size:15px;letter-spacing:.1em}
 .sheet input[type=datetime-local]{display:block;width:calc(100% - 40px);margin:16px auto 0;padding:14px;
   border:1px solid var(--line);border-radius:9px;background:#fff;color:var(--ink);font-family:inherit;font-size:17px}
 .cf-body{padding:2px 20px 4px;font-size:15px;color:var(--ink2);line-height:1.7}
@@ -194,17 +194,38 @@ nav svg{width:26px;height:26px;display:block;margin:0 auto 4px;fill:none;stroke:
 .cf-btns button{flex:1;margin:0}
 .cf-btns .primary{margin-bottom:0}
 
+/* 周期上限弹层 */
+.limit-switch{display:flex;justify-content:space-between;align-items:center;width:calc(100% - 40px);
+  margin:6px auto 0;background:none;border:0;border-bottom:1px solid var(--line);padding:12px 2px;
+  font-family:inherit;font-size:16px;color:var(--ink)}
+.sw{width:46px;height:27px;border-radius:14px;background:#D8CFBC;position:relative;transition:background .2s;flex:none}
+.sw i{position:absolute;left:2px;top:2px;width:23px;height:23px;border-radius:50%;background:#fff;
+  box-shadow:0 1px 3px rgba(0,0,0,.2);transition:left .2s}
+.sw.on{background:var(--ink)}
+.sw.on i{left:21px}
+.lim-inputs{display:none;gap:10px;padding:10px 22px 2px}
+.lim-inputs .fld{flex:1;display:flex;align-items:center;border:1px solid var(--line);border-radius:9px;
+  background:#fff;padding:0 12px}
+.lim-inputs input{flex:1;min-width:0;width:100%;border:0;outline:none;background:none;padding:13px 2px;
+  font-family:inherit;font-size:17px;color:var(--ink)}
+.lim-inputs .u{font-size:14px;color:var(--faint)}
+
 /* ── 滚轮 ── */
 .wheel{position:relative;height:290px;overflow:hidden;touch-action:none;margin:4px 0 2px}
+.wheel.small{height:250px}
 .wheel-items{position:absolute;left:0;right:0;top:0;will-change:transform}
 .wheel-item{position:absolute;left:0;right:0;height:50px;display:flex;align-items:center;justify-content:center;
   font-size:24px;color:var(--ink);will-change:transform,opacity}
-.wheel-item.special{color:var(--faint);font-size:17px;letter-spacing:.3em}
+.wheel.small .wheel-item{font-size:21px}
 .wheel-hl{position:absolute;left:24px;right:24px;top:50%;height:50px;transform:translateY(-50%);
   border-top:1px solid var(--line);border-bottom:1px solid var(--line);pointer-events:none;z-index:3}
 .wheel::before,.wheel::after{content:"";position:absolute;left:0;right:0;height:100px;z-index:2;pointer-events:none}
 .wheel::before{top:0;background:linear-gradient(to bottom,var(--paper) 10%,rgba(245,240,230,0))}
 .wheel::after{bottom:0;background:linear-gradient(to top,var(--paper) 10%,rgba(245,240,230,0))}
+.wheel-cap{display:flex;padding:10px 24px 0;font-size:13px;color:var(--faint);letter-spacing:.3em}
+.wheel-cap span{flex:1;text-align:center}
+.wheel-pair{display:flex}
+.wheel-pair .wheel{flex:1}
 
 #toast{position:fixed;left:50%;bottom:94px;transform:translate(-50%,8px);
   background:var(--ink);color:var(--paper);font-size:15px;padding:11px 20px;border-radius:22px;
@@ -231,7 +252,7 @@ nav svg{width:26px;height:26px;display:block;margin:0 auto 4px;fill:none;stroke:
         <div class="big"><span id="todayNum">0</span><span class="unit">支</span></div>
         <p class="sub" id="todaySub">今日</p>
         <div id="limitWrap"><div id="limitBar"><i></i></div></div>
-        <button id="limitMini" class="limit-mini">每日上限 · 未设置</button>
+        <button id="limitMini" class="limit-mini">周期上限 · 未设置</button>
       </div>
       <div class="stamp-wrap">
         <canvas id="fx" aria-hidden="true"></canvas>
@@ -309,7 +330,7 @@ nav svg{width:26px;height:26px;display:block;margin:0 auto 4px;fill:none;stroke:
     <!-- ═══ 设置 ═══ -->
     <section id="page-settings" class="page">
       <header class="pg-head"><p class="brand">设 置</p></header>
-      <button class="row-btn" id="limitOpen"><span>每日上限</span><span id="limitValue">未设置</span></button>
+      <button class="row-btn" id="limitOpen"><span>周期上限</span><span id="limitValue">未设置</span></button>
       <p class="sec-t">数 据 <span id="setCount"></span></p>
       <button class="row-btn" id="btnExport"><span>导出备份</span><span class="chev">›</span></button>
       <button class="row-btn" id="btnImport"><span>导入备份</span><span class="chev">›</span></button>
@@ -317,7 +338,7 @@ nav svg{width:26px;height:26px;display:block;margin:0 auto 4px;fill:none;stroke:
       <div class="about">
         <p>数据只保存在这台设备的浏览器里，不会上传到任何服务器。iOS 上 Safari 与主屏 App 的本地数据互相隔离；主屏方式使用则不受「七天清理」限制。请偶尔导出一份备份。</p>
         <p class="vpinfo" id="vpInfo"></p>
-        <p class="ver">烟 迹 · 卷 十五</p>
+        <p class="ver">烟 迹 · 卷 十六</p>
       </div>
     </section>
   </main>
@@ -339,8 +360,22 @@ nav svg{width:26px;height:26px;display:block;margin:0 auto 4px;fill:none;stroke:
 <div class="mask" id="mask"></div>
 
 <div class="sheet" id="sheetLimit">
-  <header><h4>每日上限</h4><button class="x" data-close>取消</button></header>
-  <div class="wheel" id="wheelBox"><div class="wheel-hl"></div></div>
+  <header><h4>周期上限</h4><button class="x" data-close>取消</button></header>
+  <button class="limit-switch" id="limitOn">
+    <span>启用上限</span><span class="sw" id="limitSw"><i></i></span>
+  </button>
+  <div id="limitPick">
+    <div class="wheel-cap"><span>周 期</span><span>支 数</span></div>
+    <div class="wheel-pair" id="wheelPairBox">
+      <div class="wheel small" id="wheelDays"><div class="wheel-hl"></div></div>
+      <div class="wheel small" id="wheelCigs"><div class="wheel-hl"></div></div>
+    </div>
+    <div class="lim-inputs" id="manualRow">
+      <div class="fld"><input type="number" id="limDaysIn" inputmode="numeric" min="1" max="7" placeholder="1-7"><span class="u">天</span></div>
+      <div class="fld"><input type="number" id="limCigsIn" inputmode="numeric" min="1" max="20" placeholder="1-20"><span class="u">支</span></div>
+    </div>
+    <button class="ghost" id="limitManual">手动输入</button>
+  </div>
   <button class="primary" id="limitSave">保 存</button>
 </div>
 
@@ -433,9 +468,17 @@ let prefs=mergePrefs(null);
 let cur='today', statsRange=30, histDays=14;
 let manageMode=false, selected=new Set(), histVisible=[];
 
+/* 周期上限：{on, days:1-7, cigs:1-20}；旧版 dailyLimit 自动换算为 1天 */
 function mergePrefs(p){p=(p&&typeof p==='object')?p:{};
-  return{dailyLimit:(typeof p.dailyLimit==='number'?p.dailyLimit:null),
-    limitTouched:!!p.limitTouched};}
+  let lim=null;
+  if(p.limit&&typeof p.limit==='object'
+    &&Number.isFinite(p.limit.days)&&Number.isFinite(p.limit.cigs)){
+    lim={on:p.limit.on!==false,
+      days:Math.min(7,Math.max(1,Math.round(p.limit.days))),
+      cigs:Math.min(20,Math.max(1,Math.round(p.limit.cigs)))};}
+  else if(typeof p.dailyLimit==='number'&&p.dailyLimit>=1){
+    lim={on:true,days:1,cigs:Math.min(20,Math.max(1,Math.round(p.dailyLimit)))};}
+  return{limit:lim||{on:false,days:1,cigs:10},limitTouched:!!p.limitTouched};}
 
 /* ───────── 数据操作 ───────── */
 async function addEvent(ts){const ev={id:uid(),t:ts};events.push(ev);events.sort((a,b)=>a.t-b.t);await DB.putEvent(ev);return ev;}
@@ -770,12 +813,12 @@ function bindProbes(){
 
 /* ───────── 滚轮 ───────── */
 class Wheel{
-  constructor(box,labels,specialFirst=true){
+  constructor(box,labels){
     this.box=box;this.h=50;this.n=labels.length;this.maxOff=(this.n-1)*this.h;
     this.off=0;this.raf=null;this.vel=0;this._pt=0;
     const items=document.createElement('div');items.className='wheel-items';box.appendChild(items);
     this.items=labels.map((t,i)=>{const d=document.createElement('div');
-      d.className='wheel-item'+(specialFirst&&i===0?' special':'');d.textContent=t;d.style.top=(i*this.h)+'px';
+      d.className='wheel-item';d.textContent=t;d.style.top=(i*this.h)+'px';
       items.appendChild(d);return d;});
     this.itemsEl=items;
     let y0,off0,lastY,lastT,moved;
@@ -828,21 +871,42 @@ class Wheel{
   setIndex(i,instant){if(instant){this.stop();this.off=i*this.h;this.paint();}
     else this.snapTo(i*this.h);}
 }
-let limitWheel=null;
+
+/* ───────── 周期上限 ───────── */
+let daysWheel=null,cigsWheel=null,limitOnDraft=true,manualMode=false;
 function openLimit(){
   openSheet('#sheetLimit');
-  if(!limitWheel){
-    const labels=['无上限',...Array.from({length:60},(_,i)=>(i+1)+' 支')];
-    limitWheel=new Wheel($('#wheelBox'),labels);}
-  const idx=prefs.limitTouched?(prefs.dailyLimit||0):10;
-  limitWheel.setIndex(idx,true);
+  limitOnDraft=prefs.limitTouched?prefs.limit.on:true;
+  manualMode=false;
+  $('#limitSw').classList.toggle('on',limitOnDraft);
+  $('#limitPick').style.display=limitOnDraft?'':'none';
+  if(!daysWheel){
+    daysWheel=new Wheel($('#wheelDays'),Array.from({length:7},(_,i)=>(i+1)+' 天'));
+    cigsWheel=new Wheel($('#wheelCigs'),Array.from({length:20},(_,i)=>(i+1)+' 支'));}
+  const d=prefs.limitTouched?prefs.limit.days:1;
+  const c=prefs.limitTouched?prefs.limit.cigs:10;
+  daysWheel.setIndex(d-1,true);cigsWheel.setIndex(c-1,true);
+  $('#wheelPairBox').style.display='';
+  $('#manualRow').style.display='none';
+  $('#limitManual').textContent='手动输入';
+  $('#limDaysIn').value=d;$('#limCigsIn').value=c;
 }
 async function saveLimit(){
-  const i=limitWheel.index();
-  prefs.dailyLimit=i===0?null:i;prefs.limitTouched=true;
+  if(!limitOnDraft){
+    prefs.limit={on:false,days:1,cigs:10};prefs.limitTouched=true;
+    await DB.setPref('limit',prefs);
+    closeSheet();renderAll();toast('已取消上限');return;}
+  let d,c;
+  if(manualMode){
+    d=parseInt($('#limDaysIn').value,10);c=parseInt($('#limCigsIn').value,10);
+    if(!Number.isFinite(d)||d<1||d>7||!Number.isFinite(c)||c<1||c>20){
+      toast('天数 1–7 · 支数 1–20');return;}
+  }else{
+    d=daysWheel.index()+1;c=cigsWheel.index()+1;}
+  prefs.limit={on:true,days:d,cigs:c};prefs.limitTouched=true;
   await DB.setPref('limit',prefs);
   closeSheet();renderAll();
-  toast(prefs.dailyLimit?`每日上限设为 ${prefs.dailyLimit} 支`:'已取消上限');
+  toast(`上限 · 每${d}天 ${c} 支`);
 }
 
 /* ───────── 弹层 / 提示 ───────── */
@@ -866,18 +930,27 @@ function toast(msg){const t=$('#toast');t.textContent=msg;t.classList.add('show'
 /* ───────── 今日页 ───────── */
 function renderToday(){
   const now=Date.now(),sod=startOfDay(now),d=new Date(now);
-  const n=events.filter(e=>e.t>=sod).length,lim=prefs.dailyLimit;
+  const n=events.filter(e=>e.t>=sod).length;
+  const lim=prefs.limit,useLim=prefs.limitTouched&&lim.on;
+  let cnt=0;
+  if(useLim){const ps=sod-(lim.days-1)*DAY;
+    for(const e of events)if(e.t>=ps)cnt++;}
   $('#todayDate').textContent=cnDate(d)+' · '+cnWeek(d);
   const num=$('#todayNum');num.textContent=n;
-  num.classList.toggle('over',!!lim&&n>=lim);
+  num.classList.toggle('over',useLim&&cnt>=lim.cigs);
   const sub=$('#todaySub');
   let st='今日';
-  if(lim){if(n>lim)st=`超出上限 ${n-lim} 支`;else if(n===lim)st='已达上限';else st=`今日 · 上限 ${lim} 支`;}
-  sub.textContent=st;sub.classList.toggle('warn',!!lim&&n>=lim);
-  $('#limitWrap').style.display=lim?'':'none';
-  if(lim){$('#limitBar i').style.width=Math.min(100,n/lim*100)+'%';
-    $('#limitBar').classList.toggle('over',n>=lim);}
-  $('#limitMini').textContent=lim?`每日上限 · ${lim} 支`:'每日上限 · 未设置';
+  if(useLim){
+    if(cnt>lim.cigs)st=`超出上限 ${cnt-lim.cigs} 支`;
+    else if(cnt===lim.cigs)st='已达上限';
+    else st=`今日 · ${cnt}/${lim.cigs} 支`;}
+  sub.textContent=st;sub.classList.toggle('warn',useLim&&cnt>=lim.cigs);
+  $('#limitWrap').style.display=useLim?'':'none';
+  if(useLim){$('#limitBar i').style.width=Math.min(100,cnt/lim.cigs*100)+'%';
+    $('#limitBar').classList.toggle('over',cnt>=lim.cigs);}
+  $('#limitMini').textContent=useLim
+    ?`周期上限 · 每${lim.days}天${lim.cigs}支`
+    :(prefs.limitTouched?'周期上限 · 未启用':'周期上限 · 未设置');
   const last=events.length?events[events.length-1].t:null;
   $('#statLast').textContent=last?fmtDur(now-last):'—';
   let c30=0;const s30=sod-29*DAY;
@@ -1020,11 +1093,14 @@ async function saveBackfill(){
 
 /* ───────── 设置页 / 数据 ───────── */
 function renderSettings(){
-  $('#limitValue').textContent=prefs.dailyLimit?prefs.dailyLimit+' 支':'未设置';
+  const L=prefs.limit;
+  $('#limitValue').textContent=(prefs.limitTouched&&L.on)
+    ?`每${L.days}天 · ${L.cigs}支`
+    :(prefs.limitTouched?'未启用':'未设置');
   $('#setCount').textContent=events.length+' 条';
   $('#vpInfo').textContent=`视口 ${window.innerWidth}×${window.innerHeight} · 屏幕 ${screen.width}×${screen.height} · 壳 ${document.getElementById('app').offsetHeight}`;
 }
-function buildExport(){return JSON.stringify({app:'smoke-trace',version:3,
+function buildExport(){return JSON.stringify({app:'smoke-trace',version:4,
   exportedAt:new Date().toISOString(),prefs,events});}
 function doExport(){
   const d=new Date(),ds=`${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
@@ -1111,6 +1187,15 @@ function bindUI(){
     renderStats();});
   $('#limitMini').onclick=openLimit;
   $('#limitOpen').onclick=openLimit;
+  $('#limitOn').onclick=()=>{limitOnDraft=!limitOnDraft;
+    $('#limitSw').classList.toggle('on',limitOnDraft);
+    $('#limitPick').style.display=limitOnDraft?'':'none';};
+  $('#limitManual').onclick=()=>{manualMode=!manualMode;
+    $('#manualRow').style.display=manualMode?'flex':'none';
+    $('#wheelPairBox').style.display=manualMode?'none':'';
+    $('#limitManual').textContent=manualMode?'用滚轮选择':'手动输入';
+    if(manualMode){$('#limDaysIn').value=daysWheel.index()+1;
+      $('#limCigsIn').value=cigsWheel.index()+1;}};
   $('#limitSave').onclick=saveLimit;
   $('#btnBackfill').onclick=openBackfill;
   $('#backfillSave').onclick=saveBackfill;
