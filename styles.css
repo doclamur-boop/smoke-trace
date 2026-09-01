@@ -25,3 +25,5 @@ html.standalone,html.standalone body{height:100vh;min-height:100vh}
 html.standalone #app{height:100vh;min-height:100vh}
 @media (display-mode:standalone){html,body,#app{height:100vh;min-height:100vh}}
 canvas{touch-action:pan-y}
+#noteHourly{display:none}
+
