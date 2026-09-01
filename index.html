@@ -291,23 +291,23 @@ nav svg{width:26px;height:26px;display:block;margin:0 auto 4px;fill:none;stroke:
         <div class="wide"><b id="ovCmp">—</b><span>较前一周期</span></div>
       </div>
       <section class="sec">
-        <header class="sec-h"><span class="no">一</span><h3>二十四小时分布</h3></header>
+        <header class="sec-h"><span class="no">一</span><h3>走势</h3><span class="tail" id="trendTail"></span></header>
+        <canvas id="cvTrend"></canvas>
+        <p class="note" id="noteTrend"></p>
+      </section>
+      <section class="sec">
+        <header class="sec-h"><span class="no">二</span><h3>二十四小时分布</h3></header>
         <canvas id="cvHourly"></canvas>
         <p class="note" id="noteHourly"></p>
       </section>
       <section class="sec">
-        <header class="sec-h"><span class="no">二</span><h3>星期与时辰</h3><span class="tail">颜色越深越密集</span></header>
+        <header class="sec-h"><span class="no">三</span><h3>星期与时辰</h3><span class="tail">金色越深越密集</span></header>
         <p class="read" id="heatRead"></p>
         <canvas id="cvHeat"></canvas>
         <p class="note" id="noteHeat"></p>
       </section>
       <section class="sec">
-        <header class="sec-h"><span class="no">三</span><h3>走势</h3><span class="tail">墨线为七日均线</span></header>
-        <canvas id="cvTrend"></canvas>
-        <p class="note" id="noteTrend"></p>
-      </section>
-      <section class="sec">
-        <header class="sec-h"><span class="no">四</span><h3>工作日与周末</h3><span class="tail">墨柱为周末</span></header>
+        <header class="sec-h"><span class="no">四</span><h3>工作日与周末</h3><span class="tail">虚线为整体日均</span></header>
         <canvas id="cvWeek"></canvas>
         <p class="note" id="weekNote"></p>
       </section>
@@ -341,7 +341,7 @@ nav svg{width:26px;height:26px;display:block;margin:0 auto 4px;fill:none;stroke:
       <div class="about">
         <p>数据只保存在这台设备的浏览器里，不会上传到任何服务器。iOS 为每个主屏幕图标分配独立存储：更换图标后请先在旧图标里「导出备份 → 复制到剪贴板」，再到新图标里「导入备份 → 从剪贴板读取」。请偶尔导出一份备份。</p>
         <p class="vpinfo" id="vpInfo"></p>
-        <p class="ver">烟 迹 · 卷 十七</p>
+        <p class="ver">烟 迹 · 卷 十八</p>
       </div>
     </section>
   </main>
@@ -420,6 +420,7 @@ nav svg{width:26px;height:26px;display:block;margin:0 auto 4px;fill:none;stroke:
 const $=s=>document.querySelector(s), $$=s=>document.querySelectorAll(s);
 const DAY=864e5, pad=n=>String(n).padStart(2,'0');
 const CF='"Source Han Serif SC","Noto Serif SC","Songti SC",Georgia,serif';
+const GOLD='#C9A227', GOLD_L='#D4AF37', GOLD_D='#7A4E1F';
 const fmtHM=ts=>{const d=new Date(ts);return pad(d.getHours())+':'+pad(d.getMinutes());};
 const fmtMD=ts=>{const d=new Date(ts);return (d.getMonth()+1)+'月'+d.getDate()+'日';};
 const startOfDay=ts=>{const d=new Date(ts);d.setHours(0,0,0,0);return d.getTime();};
@@ -440,7 +441,7 @@ function resetViewport(){
   document.body.scrollTop=0;
 }
 
-/* 独立模式视口修复：iOS 偶发短报布局视口，把壳体钉在真实屏幕高度上 */
+/* 独立模式视口修复 */
 function fixShell(){
   const app=document.getElementById('app');
   const standalone=(navigator.standalone===true)
@@ -604,74 +605,23 @@ function ctx2d(cv,h){const w=cv.clientWidth||cv.parentElement.clientWidth;
   const c=cv.getContext('2d');c.setTransform(d,0,0,d,0,0);c.clearRect(0,0,w,h);return {c,w,h};}
 function rr(c,x,y,w,h,r){r=Math.min(r,w/2,h/2);c.beginPath();c.moveTo(x+r,y);
   c.arcTo(x+w,y,x+w,y+h,r);c.arcTo(x+w,y+h,x,y+h,r);c.arcTo(x,y+h,x,y,r);c.arcTo(x,y,x+w,y,r);c.closePath();}
-function rampColor(t){t=Math.min(1,Math.max(0,t));
-  const st=[[0xE8,0xDF,0xCC],[0xC8,0x9A,0x5E],[0x8A,0x5A,0x2C],[0x2B,0x26,0x22]];
+/* 热力金色色阶：米 → 金 → 深金 */
+function heatColor(t){t=Math.min(1,Math.max(0,t));
+  const st=[[0xEF,0xE7,0xD2],[0xD4,0xAF,0x37],[0xA6,0x7C,0x1B],[0x6E,0x4E,0x12]];
   const seg=Math.min(2,Math.floor(t*3)),f=t*3-seg,a=st[seg],b=st[seg+1];
   return `rgb(${Math.round(a[0]+(b[0]-a[0])*f)},${Math.round(a[1]+(b[1]-a[1])*f)},${Math.round(a[2]+(b[2]-a[2])*f)})`;}
 
-/* ───────── 图表一：24 小时分布 ───────── */
-let hourlyHi=-1,hourlyGeom=null;
-function _drawHourly(){
-  const bins=hourlyBins(statsRange),P=peakHours(bins);
-  const cv=$('#cvHourly'),{c,w,h}=ctx2d(cv,212);
-  const padL=6,padR=6,padT=28,padB=24,iw=w-padL-padR,ih=h-padT-padB;
-  const bw=iw/24,barW=Math.min(15,bw*.52),maxV=Math.max(...bins,1);
-  const yMax=Math.max(3,Math.ceil(maxV/3)*3);
-  hourlyGeom={padL,bw};
-  c.strokeStyle=C.line;c.lineWidth=1;c.setLineDash([2,4]);
-  [yMax/2,yMax].forEach(v=>{const y=padT+ih-v/yMax*ih;
-    c.beginPath();c.moveTo(padL,y+.5);c.lineTo(w-padR,y+.5);c.stroke();});
-  c.setLineDash([]);
-  c.beginPath();c.moveTo(padL,padT+ih+.5);c.lineTo(w-padR,padT+ih+.5);c.stroke();
-  bins.forEach((v,i)=>{if(!v)return;const bh=v/yMax*ih,x=padL+i*bw+(bw-barW)/2;
-    const isPk=P.idx.includes(i)||i===hourlyHi;
-    const g=c.createLinearGradient(0,padT+ih-bh,0,padT+ih);
-    if(isPk){g.addColorStop(0,'#4A4138');g.addColorStop(1,'#2B2622');}
-    else{g.addColorStop(0,'#C08B4E');g.addColorStop(1,'#96632A');}
-    c.fillStyle=g;
-    rr(c,x,padT+ih-bh,barW,Math.max(2,bh),3);c.fill();});
-  c.font='10.5px '+CF;c.fillStyle=C.faint;c.textAlign='left';
-  c.fillText(String(yMax),w-padR+1,padT+ih-yMax/yMax*ih+3);
-  c.font='11.5px '+CF;c.fillStyle=C.faint;c.textAlign='center';
-  [0,6,12,18].forEach(t=>c.fillText(t+'时',padL+t*bw+bw/2,h-8));
-  c.font='13px '+CF;
-  if(hourlyHi>=0&&bins[hourlyHi]>0){c.fillStyle=C.ink;
-    c.fillText(`${hourlyHi} 时 · ${bins[hourlyHi]} 支`,Math.min(w-52,Math.max(52,padL+hourlyHi*bw+bw/2)),15);}
-  else if(P.max>0){c.fillStyle=C.ink2;
-    const lb=P.idx.length<=3?`峰值 ${fmtHours(P.idx)} · 每段 ${P.max} 支`
-      :`峰值 ${P.idx.length} 个时段 · 每段 ${P.max} 支`;
-    c.fillText(lb,w/2,15);}
-  if(bins.every(v=>!v)){c.fillStyle=C.faint;c.font='13px '+CF;c.fillText('暂无记录',w/2,padT+ih/2);}
+/* ───────── 图表一：走势（金线 + 动态均线） ───────── */
+let trendData=[],trendGeom=null,trendHi=-1,trendMA=0;
+function maWindow(){          // 均线窗口：7日无 / 30日5 / 90日10 / 全部=天数÷10
+  if(statsRange===7)return 0;
+  if(statsRange===30)return 5;
+  if(statsRange===90)return 10;
+  const n=trendData.length||1;
+  return Math.max(2,Math.round(n/10));
 }
-
-/* ───────── 图表二：星期 × 时辰热力 ───────── */
-let hmHi=null,hmGeom=null,hmGrid=null;
-function _drawHeatmap(){
-  const cv=$('#cvHeat'),{c,w,h}=ctx2d(cv,216);
-  const padL=26,padT=2,padB=20,cw=(w-padL-1)/24,ch=(h-padT-padB)/7;
-  hmGeom={padL,padT,cw,ch};
-  const s=statsRange===Infinity?0:startOfDay(Date.now())-(statsRange-1)*DAY;
-  const grid=Array.from({length:7},()=>new Array(24).fill(0));
-  for(const e of events){if(e.t<s)continue;const d=new Date(e.t);grid[(d.getDay()+6)%7][d.getHours()]++;}
-  hmGrid=grid;
-  let max=0;grid.forEach(r=>r.forEach(v=>{if(v>max)max=v;}));
-  c.font='11.5px '+CF;c.fillStyle=C.faint;
-  c.textAlign='right';
-  '一二三四五六日'.split('').forEach((t,i)=>c.fillText(t,padL-8,padT+i*ch+ch/2+4));
-  c.textAlign='center';
-  [0,6,12,18].forEach(t=>c.fillText(t+'时',padL+t*cw+cw/2,h-5));
-  for(let r=0;r<7;r++)for(let col=0;col<24;col++){
-    const v=grid[r][col],x=padL+col*cw+1,y=padT+r*ch+1;
-    c.fillStyle=v?rampColor(Math.sqrt(v/Math.max(1,max))):'rgba(43,38,34,.045)';
-    rr(c,x,y,cw-2,ch-2,3);c.fill();}
-  if(hmHi){c.strokeStyle=C.ink;c.lineWidth=1.6;
-    rr(c,padL+hmHi.c*cw+.5,padT+hmHi.r*ch+.5,cw-2,ch-2,3);c.stroke();}
-}
-
-/* ───────── 图表三：走势 ───────── */
-let trendData=[],trendGeom=null,trendHi=-1;
 function buildTrend(){
-  if(!events.length){trendData=[];return;}
+  if(!events.length){trendData=[];trendMA=0;return;}
   const sod=startOfDay(Date.now());
   const first=startOfDay(events[0].t);
   const n=Math.min(90,Math.round((sod-first)/DAY)+1);
@@ -679,8 +629,12 @@ function buildTrend(){
   const arr=Array.from({length:n},(_,i)=>({day:from+i*DAY,c:0}));
   const idx=new Map();arr.forEach((p,i)=>idx.set(p.day,i));
   for(const e of events){const i=idx.get(startOfDay(e.t));if(i!==undefined)arr[i].c++;}
-  arr.forEach((p,i)=>{let s=0,c=0;for(let j=Math.max(0,i-6);j<=i;j++){s+=arr[j].c;c++;}p.m=s/c;});
   trendData=arr;
+  trendMA=maWindow();
+  if(trendMA>0)arr.forEach((p,i)=>{
+    let s=0,c=0;
+    for(let j=Math.max(0,i-trendMA+1);j<=i;j++){s+=arr[j].c;c++;}
+    p.m=s/c;});
 }
 function drawSmooth(c,pts){
   const n=pts.length;
@@ -722,40 +676,110 @@ function _drawTrend(){
   c.textAlign='center';
   if(n===1){
     const p=data[0],x=X(0),y=Y(p.c),d=new Date(p.day);
-    c.fillStyle=C.amber;c.beginPath();c.arc(x,y,5,0,7);c.fill();
-    c.fillStyle=C.ink;c.beginPath();c.arc(x,y,2.6,0,7);c.fill();
+    c.fillStyle=GOLD_L;c.beginPath();c.arc(x,y,5,0,7);c.fill();
+    c.fillStyle=GOLD_D;c.beginPath();c.arc(x,y,2.4,0,7);c.fill();
     c.fillStyle=C.ink2;c.font='13px '+CF;
     c.fillText(`${d.getMonth()+1}月${d.getDate()}日 · ${p.c} 支`,w/2,15);
     c.fillStyle=C.faint;c.font='11.5px '+CF;
     c.fillText(lbl(p.day),w/2,h-6);
     return;
   }
-  const mPts=data.map((p,i)=>({x:X(i),y:Y(p.m)}));
+  /* 金色渐变面积（衬在每日线下） */
+  const dPts=data.map((p,i)=>({x:X(i),y:Y(p.c)}));
   const gr=c.createLinearGradient(0,padT,0,padT+ih);
-  gr.addColorStop(0,'rgba(166,114,56,.22)');
-  gr.addColorStop(1,'rgba(166,114,56,0)');
-  c.beginPath();drawSmooth(c,mPts);
+  gr.addColorStop(0,'rgba(201,162,39,.26)');
+  gr.addColorStop(1,'rgba(201,162,39,0)');
+  c.beginPath();drawSmooth(c,dPts);
   c.lineTo(X(n-1),padT+ih);c.lineTo(X(0),padT+ih);c.closePath();
   c.fillStyle=gr;c.fill();
-  c.strokeStyle='rgba(166,114,56,.42)';c.lineWidth=1;c.beginPath();
-  drawSmooth(c,data.map((p,i)=>({x:X(i),y:Y(p.c)})));c.stroke();
-  if(n<=31){c.fillStyle='rgba(166,114,56,.75)';
+  /* 深金均线 */
+  if(trendMA>0){
+    c.strokeStyle=GOLD_D;c.lineWidth=1.6;c.beginPath();
+    drawSmooth(c,data.map((p,i)=>({x:X(i),y:Y(p.m)})));c.stroke();
+  }
+  /* 金色每日主线 */
+  c.strokeStyle=GOLD;c.lineWidth=2;c.beginPath();
+  drawSmooth(c,dPts);c.stroke();
+  if(n<=31){c.fillStyle=GOLD;
     data.forEach((p,i)=>{c.beginPath();c.arc(X(i),Y(p.c),2,0,7);c.fill();});}
-  c.strokeStyle=C.ink;c.lineWidth=1.8;c.beginPath();
-  drawSmooth(c,mPts);c.stroke();
   c.fillStyle=C.faint;c.font='11.5px '+CF;
   c.fillText(lbl(data[0].day),padL+14,h-6);
   c.fillText(lbl(data[n-1].day),w-padR-14,h-6);
   if(n>24)c.fillText(lbl(data[Math.floor(n/2)].day),w/2,h-6);
   if(trendHi>=0&&trendHi<n){const p=data[trendHi];
-    c.fillStyle=C.amber;c.beginPath();c.arc(X(trendHi),Y(p.c),3.5,0,7);c.fill();
+    c.fillStyle=GOLD_L;c.beginPath();c.arc(X(trendHi),Y(p.c),4,0,7);c.fill();
     c.strokeStyle='#F5F0E6';c.lineWidth=1.4;
-    c.beginPath();c.arc(X(trendHi),Y(p.c),3.5,0,7);c.stroke();
+    c.beginPath();c.arc(X(trendHi),Y(p.c),4,0,7);c.stroke();
     const d=new Date(p.day);c.fillStyle=C.ink2;c.font='13px '+CF;
     c.fillText(`${d.getMonth()+1}月${d.getDate()}日 · ${p.c} 支`,Math.min(w-56,Math.max(56,X(trendHi))),15);}
 }
 
-/* ───────── 图表四：工作日与周末 ───────── */
+/* ───────── 图表二：二十四小时分布（高峰金柱） ───────── */
+let hourlyHi=-1,hourlyGeom=null;
+function _drawHourly(){
+  const bins=hourlyBins(statsRange),P=peakHours(bins);
+  const cv=$('#cvHourly'),{c,w,h}=ctx2d(cv,212);
+  const padL=6,padR=6,padT=28,padB=24,iw=w-padL-padR,ih=h-padT-padB;
+  const bw=iw/24,barW=Math.min(15,bw*.52),maxV=Math.max(...bins,1);
+  const yMax=Math.max(3,Math.ceil(maxV/3)*3);
+  hourlyGeom={padL,bw};
+  c.strokeStyle=C.line;c.lineWidth=1;c.setLineDash([2,4]);
+  [yMax/2,yMax].forEach(v=>{const y=padT+ih-v/yMax*ih;
+    c.beginPath();c.moveTo(padL,y+.5);c.lineTo(w-padR,y+.5);c.stroke();});
+  c.setLineDash([]);
+  c.beginPath();c.moveTo(padL,padT+ih+.5);c.lineTo(w-padR,padT+ih+.5);c.stroke();
+  bins.forEach((v,i)=>{if(!v)return;const bh=v/yMax*ih,x=padL+i*bw+(bw-barW)/2;
+    const isPk=P.idx.includes(i);
+    const g=c.createLinearGradient(0,padT+ih-bh,0,padT+ih);
+    if(isPk){g.addColorStop(0,GOLD_L);g.addColorStop(1,'#A67C1B');}
+    else{g.addColorStop(0,'#C08B4E');g.addColorStop(1,'#96632A');}
+    c.fillStyle=g;
+    rr(c,x,padT+ih-bh,barW,Math.max(2,bh),3);c.fill();
+    if(i===hourlyHi){c.strokeStyle=C.ink;c.lineWidth=1.2;
+      rr(c,x,padT+ih-bh,barW,Math.max(2,bh),3);c.stroke();}});
+  c.font='10.5px '+CF;c.fillStyle=C.faint;c.textAlign='left';
+  c.fillText(String(yMax),w-padR+1,padT+ih-yMax/yMax*ih+3);
+  c.font='11.5px '+CF;c.fillStyle=C.faint;c.textAlign='center';
+  [0,6,12,18].forEach(t=>c.fillText(t+'时',padL+t*bw+bw/2,h-8));
+  c.font='13px '+CF;
+  if(hourlyHi>=0&&bins[hourlyHi]>0){c.fillStyle=C.ink;
+    c.fillText(`${hourlyHi} 时 · ${bins[hourlyHi]} 支`,Math.min(w-52,Math.max(52,padL+hourlyHi*bw+bw/2)),15);}
+  else if(P.max>0){c.fillStyle=C.ink2;
+    const lb=P.idx.length<=3?`金柱峰值 ${fmtHours(P.idx)} · 每段 ${P.max} 支`
+      :`金柱峰值 ${P.idx.length} 个时段 · 每段 ${P.max} 支`;
+    c.fillText(lb,w/2,15);}
+  if(bins.every(v=>!v)){c.fillStyle=C.faint;c.font='13px '+CF;c.fillText('暂无记录',w/2,padT+ih/2);}
+}
+
+/* ───────── 图表三：星期 × 时辰热力（金色 · 黄金比例格） ───────── */
+let hmHi=null,hmGeom=null,hmGrid=null;
+function _drawHeatmap(){
+  const cv=$('#cvHeat');
+  const w0=cv.clientWidth||cv.parentElement.clientWidth||331;
+  const padL=26,padT=2,padB=20;
+  const cw=(w0-padL-1)/24, ch=cw*1.618;          // 长宽比向黄金比例靠拢
+  const H=Math.round(padT+7*ch+padB);
+  const {c,w,h}=ctx2d(cv,H);
+  hmGeom={padL,padT,cw,ch};
+  const s=statsRange===Infinity?0:startOfDay(Date.now())-(statsRange-1)*DAY;
+  const grid=Array.from({length:7},()=>new Array(24).fill(0));
+  for(const e of events){if(e.t<s)continue;const d=new Date(e.t);grid[(d.getDay()+6)%7][d.getHours()]++;}
+  hmGrid=grid;
+  let max=0;grid.forEach(r=>r.forEach(v=>{if(v>max)max=v;}));
+  c.font='11.5px '+CF;c.fillStyle=C.faint;
+  c.textAlign='right';
+  '一二三四五六日'.split('').forEach((t,i)=>c.fillText(t,padL-8,padT+i*ch+ch/2+4));
+  c.textAlign='center';
+  [0,6,12,18].forEach(t=>c.fillText(t+'时',padL+t*cw+cw/2,h-5));
+  for(let r=0;r<7;r++)for(let col=0;col<24;col++){
+    const v=grid[r][col],x=padL+col*cw+1,y=padT+r*ch+1;
+    c.fillStyle=v?heatColor(Math.sqrt(v/Math.max(1,max))):'rgba(43,38,34,.045)';
+    rr(c,x,y,cw-2,ch-2,3);c.fill();}
+  if(hmHi){c.strokeStyle=C.ink;c.lineWidth=1.6;
+    rr(c,padL+hmHi.c*cw+.5,padT+hmHi.r*ch+.5,cw-2,ch-2,3);c.stroke();}
+}
+
+/* ───────── 图表四：工作日与周末（单色） ───────── */
 function drawWeek(){
   const cv=$('#cvWeek'),{c,w,h}=ctx2d(cv,188);
   const now=startOfDay(Date.now()),f=firstDayStart();
@@ -775,8 +799,7 @@ function drawWeek(){
     const bh=avg[i]/maxA*ih,x=padL+i*bw+(bw-barW)/2,y=padT+ih-bh;
     if(avg[i]>0){
       const g=c.createLinearGradient(0,y,0,padT+ih);
-      if(i>=5){g.addColorStop(0,'#4A4138');g.addColorStop(1,'#2B2622');}
-      else{g.addColorStop(0,'#C08B4E');g.addColorStop(1,'#96632A');}
+      g.addColorStop(0,GOLD);g.addColorStop(1,'#8A621C');
       c.fillStyle=g;rr(c,x,y,barW,Math.max(2,bh),3);c.fill();}
     c.font='11.5px '+CF;c.textAlign='center';
     if(days[i]){c.fillStyle=C.ink2;c.fillText(avg[i].toFixed(1),padL+i*bw+bw/2,y-7);}
@@ -784,7 +807,7 @@ function drawWeek(){
   const dw=days.slice(0,5).reduce((a,b)=>a+b,0),de=days.slice(5).reduce((a,b)=>a+b,0);
   const sw=sums.slice(0,5).reduce((a,b)=>a+b,0),se=sums.slice(5).reduce((a,b)=>a+b,0);
   const wAvg=dw?(sw/dw).toFixed(1)+' 支':'—',eAvg=de?(se/de).toFixed(1)+' 支':'—';
-  const base=allD&&allS?` · 虚线为整体日均 ${(allS/allD).toFixed(1)}`:'';
+  const base=allD&&allS?` · 整体日均 ${(allS/allD).toFixed(1)}`:'';
   $('#weekNote').textContent=events.length?
     `工作日日均 ${wAvg} · 周末日均 ${eAvg}${base}`:'暂无数据';
 }
@@ -800,6 +823,12 @@ function attachProbe(cv,cb){
   cv.addEventListener('mouseleave',()=>cb.onEnd());
 }
 function bindProbes(){
+  attachProbe($('#cvTrend'),{
+    onMove:x=>{if(!trendGeom||trendData.length<2)return;
+      const n=trendData.length;
+      const i=Math.max(0,Math.min(n-1,Math.round((x-trendGeom.padL)/trendGeom.iw*(n-1))));
+      if(i!==trendHi){trendHi=i;_drawTrend();}},
+    onEnd:()=>{trendHi=-1;_drawTrend();}});
   attachProbe($('#cvHourly'),{
     onMove:x=>{if(!hourlyGeom)return;
       const i=Math.max(0,Math.min(23,Math.floor((x-hourlyGeom.padL)/hourlyGeom.bw)));
@@ -812,12 +841,6 @@ function bindProbes(){
       if(!hmHi||hmHi.r!==row||hmHi.c!==col){hmHi={r:row,c:col};_drawHeatmap();
         $('#heatRead').textContent=`星期${'一二三四五六日'[row]} ${col} 时 · ${hmGrid[row][col]} 支`;}},
     onEnd:()=>{hmHi=null;_drawHeatmap();$('#heatRead').textContent='滑过格子，查看具体时辰';}});
-  attachProbe($('#cvTrend'),{
-    onMove:x=>{if(!trendGeom||trendData.length<2)return;
-      const n=trendData.length;
-      const i=Math.max(0,Math.min(n-1,Math.round((x-trendGeom.padL)/trendGeom.iw*(n-1))));
-      if(i!==trendHi){trendHi=i;_drawTrend();}},
-    onEnd:()=>{trendHi=-1;_drawTrend();}});
 }
 
 /* ───────── 滚轮 ───────── */
@@ -1011,11 +1034,14 @@ function renderStats(){
       else ct='→ 持平';}
     else if(total>0)ct='新增';}
   cmp.textContent=ct;
-  _drawHourly();_drawHeatmap();buildTrend();_drawTrend();drawWeek();
+  buildTrend();_drawTrend();_drawHourly();_drawHeatmap();drawWeek();
+  /* 走势图尾注：均线说明 */
+  $('#trendTail').textContent=(trendMA>0&&trendData.length>1)
+    ?`金线为每日 · 深线为${trendMA}日均线`:'金线为每日用量';
   const bins=hourlyBins(statsRange),P=peakHours(bins);
   $('#noteHourly').textContent=P.max>0?(P.idx.length<=3
-    ?`高峰在 ${fmtHours(P.idx)}前后，该时段共 ${P.max} 支。`
-    :`高峰集中在 ${fmtHours(P.idx.slice(0,3))} 等 ${P.idx.length} 个时段，各 ${P.max} 支。`):'暂无记录。';
+    ?`金柱为高峰时段 ${fmtHours(P.idx)}，各 ${P.max} 支。`
+    :`金柱集中在 ${fmtHours(P.idx.slice(0,3))} 等 ${P.idx.length} 个时段，各 ${P.max} 支。`):'暂无记录。';
   if(hmGrid){let mr=0,mc=0,mv=0;
     hmGrid.forEach((row,r)=>row.forEach((v,cc)=>{if(v>mv){mv=v;mr=r;mc=cc;}}));
     $('#noteHeat').textContent=mv>0?`最密集的一格：星期${'一二三四五六日'[mr]} ${mc} 时，共 ${mv} 支。`:'暂无记录。';}
@@ -1129,7 +1155,6 @@ async function doCopy(){
     ta.remove();}
   closeSheet();
 }
-/* 通用导入：接受任意备份 JSON 文本 */
 async function importJSON(text){
   try{
     const data=JSON.parse(text);
