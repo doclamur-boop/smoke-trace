@@ -9,11 +9,11 @@
 <meta name="theme-color" content="#29231F">
 <meta name="description" content="极简、本地优先的个人吸烟记录与趋势观察工具">
 <link rel="manifest" href="manifest.webmanifest">
-<link rel="apple-touch-icon" href="icon-v19.svg">
-<link rel="icon" type="image/svg+xml" href="icon-v19.svg">
+<link rel="apple-touch-icon" sizes="192x192" href="icon-v19-192.png">
+<link rel="icon" type="image/png" sizes="512x512" href="icon-v19-512.png">
 <link rel="preconnect" href="https://fonts.loli.net" crossorigin>
 <link href="https://fonts.loli.net/css2?family=Noto+Serif+SC:wght@400;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css?v=19">
+<link rel="stylesheet" href="styles.css?v=19.3">
 <title>烟迹</title>
 </head>
 <body>
@@ -32,7 +32,7 @@
       <section class="sec"><header class="sec-h"><span class="no">一</span><h3>走势</h3><span class="tail" id="trendTail"></span></header><canvas id="cvTrend"></canvas><p class="note" id="noteTrend"></p></section>
       <section class="sec"><header class="sec-h"><span class="no">二</span><h3>二十四小时分布</h3></header><canvas id="cvHourly"></canvas><p class="note" id="noteHourly"></p></section>
       <section class="sec"><header class="sec-h"><span class="no">三</span><h3>星期与时辰</h3><span class="tail">琥珀越深越密集</span></header><p class="read" id="heatRead">滑过格子，查看具体时辰</p><canvas id="cvHeat"></canvas><p class="note" id="noteHeat"></p></section>
-      <details class="secondary-analysis"><summary>工作日与周末</summary><canvas id="cvWeek"></canvas><p class="note" id="weekNote"></p></details>
+      <section class="secondary-analysis"><h3>工作日与周末</h3><canvas id="cvWeek"></canvas><p class="note" id="weekNote"></p></section>
     </section>
     <section id="page-history" class="page"><header class="pg-head"><p class="brand">历 史</p><div class="hdr-btns" id="histNormBtns"><button class="ghost-btn" id="btnBackfill">＋ 补记</button><button class="ghost-btn" id="btnManage">管理</button></div><div class="hdr-btns" id="histMgmtBtns" hidden><button class="ghost-btn" id="btnSelAll">全选</button><button class="ghost-btn" id="btnDone">完成</button></div></header><div id="histList"></div><button class="danger-wide" id="btnDelSel">删除所选（0）</button><button class="ghost-btn wide" id="histOlder">载入更早</button></section>
     <section id="page-settings" class="page"><header class="pg-head"><p class="brand">设 置</p></header><button class="row-btn" id="limitOpen"><span>周期上限</span><span id="limitValue">未设置</span></button><p class="sec-t">数 据 <span id="setCount"></span></p><button class="row-btn" id="btnExport"><span>导出备份</span><span class="chev">›</span></button><button class="row-btn" id="btnImport"><span>导入备份</span><span class="chev">›</span></button><button class="row-btn danger" id="btnClear"><span>清空全部数据</span><span>›</span></button><div class="about"><p>数据只保存在这台设备的浏览器里，不上传服务器。PWA更新不会主动删除记录；更换设备或清理浏览器数据前请先导出备份。</p><p class="vpinfo" id="vpInfo"></p><p class="ver">烟 迹 · 卷 十九</p></div></section>
@@ -46,6 +46,7 @@
 <div class="sheet" id="sheetImport"><header><h4>导入备份</h4><button class="x" data-close>取消</button></header><textarea id="importText" placeholder="粘贴备份 JSON 到这里……"></textarea><button class="primary" id="impText">导入粘贴内容</button><button class="ghost" id="impPaste">从剪贴板读取</button><button class="ghost" id="impFile">选择 JSON 文件</button></div>
 <div class="sheet" id="sheetConfirm"><header><h4 id="cfTitle"></h4></header><p class="cf-body" id="cfBody"></p><div class="cf-btns"><button class="ghost" id="cfCancel">取消</button><button class="primary" id="cfOk"></button></div></div>
 <div id="toast"></div><input type="file" id="fileImport" accept=".json,application/json" hidden>
-<script src="db.js?v=19"></script><script src="charts.js?v=19"></script><script src="app.js?v=19"></script><script src="interaction.js?v=19"></script>
+<script src="db.js?v=19.3"></script><script src="charts.js?v=19.3"></script><script src="app.js?v=19.3"></script>
 </body>
 </html>
+
