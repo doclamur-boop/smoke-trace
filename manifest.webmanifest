@@ -1,0 +1,12 @@
+{
+  "name":"烟迹",
+  "short_name":"烟迹",
+  "description":"极简、本地优先的个人吸烟记录与趋势观察工具",
+  "start_url":"./",
+  "scope":"./",
+  "display":"standalone",
+  "background_color":"#F4EFE5",
+  "theme_color":"#29231F",
+  "orientation":"any",
+  "icons":[{"src":"icon-v19.png","sizes":"1024x1024","type":"image/png","purpose":"any maskable"}]
+}
