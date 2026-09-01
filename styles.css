@@ -12,4 +12,10 @@ nav{flex:none;display:flex;z-index:20;background:rgba(244,239,229,.96);border-to
 
 
 .secondary-analysis h3{font-size:15px;color:var(--ink2);padding:4px 0 12px}
-
+html{height:100%;background:var(--paper)}
+body{height:100%;min-height:100%}
+#app{position:fixed;width:100%;height:100vh;height:100dvh;min-height:100%;inset:0}
+nav{margin-top:auto}
+.hdr-btns[hidden]{display:none}
+#page-history .pg-head{align-items:center;margin-bottom:20px}
+#page-history .brand{white-space:nowrap}
