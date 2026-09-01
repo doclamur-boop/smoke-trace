@@ -1,0 +1,24 @@
+name: Build v19 PNG icons
+on:
+  push:
+    paths:
+      - '.icon-build/trigger'
+permissions:
+  contents: write
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Rebuild PNG icons
+        run: |
+          cat .icon-build/chunk* | base64 -d > icon-v19-512.png
+          convert icon-v19-512.png -resize 192x192 icon-v19-192.png
+          file icon-v19-512.png icon-v19-192.png
+      - name: Commit icons
+        run: |
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add icon-v19-512.png icon-v19-192.png
+          git commit -m 'Build standard PNG icons from approved artwork'
+          git push
