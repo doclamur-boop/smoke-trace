@@ -19,3 +19,5 @@ nav{margin-top:auto}
 .hdr-btns[hidden]{display:none}
 #page-history .pg-head{align-items:center;margin-bottom:20px}
 #page-history .brand{white-space:nowrap}
+main{padding-bottom:calc(30px + 80px + max(14px,env(safe-area-inset-bottom)))}
+nav{position:fixed;left:50%;right:auto;bottom:0;width:min(100%,520px);margin-top:0;transform:translateX(-50%)}
