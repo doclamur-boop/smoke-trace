@@ -1,0 +1,190 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0c2840">
+<title>烟迹数据救援</title>
+<style>
+:root{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Helvetica Neue",Arial,sans-serif;color:#10283b;background:#f3f7fa}
+*{box-sizing:border-box}
+body{margin:0;padding:env(safe-area-inset-top) 18px calc(24px + env(safe-area-inset-bottom));min-height:100vh}
+main{max-width:560px;margin:0 auto;padding-top:28px}
+h1{font-size:28px;margin:0 0 8px} p{line-height:1.65;color:#526574}
+.card{background:#fff;border:1px solid #dfe8ef;border-radius:18px;padding:18px;margin:16px 0;box-shadow:0 8px 30px rgba(12,40,64,.06)}
+button{width:100%;border:0;border-radius:14px;padding:14px 16px;margin:7px 0;font-size:16px;font-weight:700;background:#0c2840;color:#fff}
+button.secondary{background:#e8f1f6;color:#0c2840}
+button:disabled{opacity:.45}
+.stat{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}
+.stat div{background:#f3f7fa;border-radius:12px;padding:12px}.stat b{display:block;font-size:22px}.stat span{font-size:12px;color:#667887}
+#status{font-weight:700;color:#0c2840}#error{color:#a13f38;white-space:pre-wrap}
+textarea{width:100%;min-height:180px;border:1px solid #d6e1e8;border-radius:12px;padding:10px;font:12px/1.5 ui-monospace,SFMono-Regular,Menlo,monospace;display:none}
+small{display:block;color:#7b8c98;line-height:1.55;margin-top:12px}
+</style>
+</head>
+<body>
+<main>
+  <h1>烟迹数据救援</h1>
+  <p>此页面只读取旧主屏“烟迹”中的本地数据库，不修改、不清空任何记录。请务必从原来已经安装的“烟迹”主屏图标进入本页。</p>
+
+  <section class="card">
+    <div id="status">尚未读取</div>
+    <div id="error"></div>
+    <div class="stat">
+      <div><b id="smokeCount">—</b><span>吸烟记录</span></div>
+      <div><b id="alcoholCount">—</b><span>饮酒记录</span></div>
+    </div>
+    <small id="meta"></small>
+  </section>
+
+  <button id="readBtn">读取旧数据</button>
+  <button id="downloadBtn" class="secondary" disabled>下载JSON备份</button>
+  <button id="copyBtn" class="secondary" disabled>复制JSON</button>
+  <button id="showBtn" class="secondary" disabled>显示JSON文本</button>
+
+  <section class="card">
+    <p>在新“节度”中确认导入成功前，请不要删除旧“烟迹”主屏图标，也不要清除Safari/系统网站数据。</p>
+    <textarea id="jsonText" readonly></textarea>
+  </section>
+</main>
+
+<script>
+'use strict';
+const DB_NAME='smoke-trace';
+let recoveredJson='';
+const $=s=>document.querySelector(s);
+
+function req(r){
+  return new Promise((resolve,reject)=>{
+    r.onsuccess=()=>resolve(r.result);
+    r.onerror=()=>reject(r.error||new Error('IndexedDB request failed'));
+  });
+}
+
+function openExistingDb(){
+  return new Promise((resolve,reject)=>{
+    let missing=false;
+    const r=indexedDB.open(DB_NAME);
+    r.onupgradeneeded=e=>{
+      if(e.oldVersion===0){
+        missing=true;
+        try{e.target.transaction.abort();}catch(_){ }
+      }
+    };
+    r.onsuccess=()=>{
+      if(missing){
+        try{r.result.close();}catch(_){ }
+        reject(new Error('未发现既有 smoke-trace 数据库。请确认你是从原来的旧“烟迹”主屏图标进入，而不是Safari中新打开的网页。'));
+        return;
+      }
+      resolve(r.result);
+    };
+    r.onerror=()=>{
+      if(missing || (r.error && r.error.name==='AbortError')){
+        reject(new Error('未发现既有 smoke-trace 数据库。请确认你是从原来的旧“烟迹”主屏图标进入，而不是Safari中新打开的网页。'));
+      }else{
+        reject(r.error||new Error('无法打开旧数据库'));
+      }
+    };
+  });
+}
+
+async function readStore(db,name){
+  if(!db.objectStoreNames.contains(name)) return null;
+  const tx=db.transaction(name,'readonly');
+  return req(tx.objectStore(name).getAll());
+}
+
+async function readPrefs(db){
+  if(!db.objectStoreNames.contains('prefs')) return {prefs:{},prefsByKey:{}};
+  const tx=db.transaction('prefs','readonly');
+  const store=tx.objectStore('prefs');
+  try{
+    const keys=await req(store.getAllKeys());
+    const values=await req(store.getAll());
+    const prefsByKey={};
+    keys.forEach((k,i)=>{prefsByKey[String(k)]=values[i]});
+    return {prefs:prefsByKey.limit||{},prefsByKey};
+  }catch(_){
+    const limit=await req(store.get('limit'));
+    return {prefs:limit||{},prefsByKey:{limit:limit||{}}};
+  }
+}
+
+async function recover(){
+  $('#error').textContent='';
+  $('#status').textContent='正在读取……';
+  $('#readBtn').disabled=true;
+  try{
+    const db=await openExistingDb();
+    const stores=Array.from(db.objectStoreNames);
+    const events=(await readStore(db,'events'))||[];
+    const alcoholEvents=(await readStore(db,'alcoholEvents'))||[];
+    const {prefs,prefsByKey}=await readPrefs(db);
+    const payload={
+      app:'smoke-trace',
+      version:5,
+      recoveredAt:new Date().toISOString(),
+      prefs,
+      events
+    };
+    if(alcoholEvents.length) payload.alcoholEvents=alcoholEvents;
+    payload.recoveryMeta={dbName:DB_NAME,dbVersion:db.version,stores,prefsByKey};
+    db.close();
+
+    recoveredJson=JSON.stringify(payload,null,2);
+    $('#smokeCount').textContent=events.length;
+    $('#alcoholCount').textContent=alcoholEvents.length;
+    $('#meta').textContent=`数据库：${DB_NAME} · version ${payload.recoveryMeta.dbVersion} · stores: ${stores.join(', ')}`;
+    $('#status').textContent=events.length||alcoholEvents.length?'读取成功，请立即保存两份备份':'数据库存在，但没有读取到事件记录。请先不要删除旧PWA，并核对是否进入了正确的旧主屏实例。';
+    $('#downloadBtn').disabled=false;
+    $('#copyBtn').disabled=false;
+    $('#showBtn').disabled=false;
+  }catch(err){
+    $('#status').textContent='读取失败';
+    $('#error').textContent=String(err&&err.message||err);
+  }finally{
+    $('#readBtn').disabled=false;
+  }
+}
+
+function download(){
+  if(!recoveredJson)return;
+  const d=new Date();
+  const date=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+  const blob=new Blob([recoveredJson],{type:'application/json'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download=`smoke-trace-recovery-${date}.json`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(()=>URL.revokeObjectURL(a.href),3000);
+}
+
+async function copy(){
+  if(!recoveredJson)return;
+  try{
+    await navigator.clipboard.writeText(recoveredJson);
+    $('#status').textContent='JSON已复制；仍建议同时下载文件备份。';
+  }catch(_){
+    $('#jsonText').style.display='block';
+    $('#jsonText').value=recoveredJson;
+    $('#status').textContent='系统拒绝剪贴板访问；已显示JSON，请长按全选复制。';
+  }
+}
+
+function show(){
+  if(!recoveredJson)return;
+  const ta=$('#jsonText');
+  ta.style.display=ta.style.display==='block'?'none':'block';
+  ta.value=recoveredJson;
+}
+
+$('#readBtn').addEventListener('click',recover);
+$('#downloadBtn').addEventListener('click',download);
+$('#copyBtn').addEventListener('click',copy);
+$('#showBtn').addEventListener('click',show);
+</script>
+</body>
+</html>
